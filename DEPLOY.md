@@ -79,7 +79,8 @@ NEXT_PUBLIC_SITE_URL="https://omerta-rp.fr"
 Valeurs **optionnelles** mais recommandees :
 
 ```bash
-DISCORD_WEBHOOK_URL=""            # notification des candidatures
+DISCORD_WEBHOOK_STAFF=""          # salon des candidatures staff
+DISCORD_WEBHOOK_ANIMATEUR=""      # salon des candidatures animateur
 FIVEM_SERVER_URL="https://c90l6t8d.gen.addveo.com:443"
 NEXT_PUBLIC_JOIN_URL="https://cfx.re/join/gad36ex"
 NEXT_PUBLIC_DISCORD_INVITE="https://discord.gg/omertarp"

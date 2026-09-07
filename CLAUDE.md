@@ -43,8 +43,10 @@ Modifier ces fichiers plutot que de dupliquer la valeur ailleurs :
 | `src/app/globals.css` | Tokens de design (couleurs, polices, utilitaires) |
 
 Ajouter un poste de recrutement : une entree dans `postes.ts` **et** la valeur
-dans l'enum `poste` de `validation.ts`. Le formulaire, le webhook Discord et les
-filtres du dashboard suivent automatiquement.
+dans l'enum `poste` de `validation.ts`. Le formulaire et les filtres du
+dashboard suivent automatiquement. Pour un salon Discord dedie, ajouter aussi
+une entree dans `webhookPour()` de `src/lib/discord.ts` et la variable
+correspondante dans `.env` ; sinon le poste retombe sur `DISCORD_WEBHOOK_URL`.
 
 ## Conventions
 

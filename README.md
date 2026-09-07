@@ -43,7 +43,9 @@ npm run dev               # http://localhost:3100 (Turbopack)
 |---|---|---|
 | `DATABASE_URL` | oui | `file:./dev.db` en dev, `postgresql://...` en prod |
 | `SESSION_SECRET` | oui | Signature des sessions staff. `openssl rand -base64 32` |
-| `DISCORD_WEBHOOK_URL` | non | Notification du salon staff a chaque candidature |
+| `DISCORD_WEBHOOK_STAFF` | non | Salon recevant les candidatures **staff** |
+| `DISCORD_WEBHOOK_ANIMATEUR` | non | Salon recevant les candidatures **animateur** |
+| `DISCORD_WEBHOOK_URL` | non | Repli commun si l'un des deux ci-dessus manque |
 | `FIVEM_SERVER_URL` | non | Serveur de jeu interroge pour le compteur de joueurs |
 | `NEXT_PUBLIC_DISCORD_INVITE` | non | Lien d'invitation Discord |
 | `NEXT_PUBLIC_SHOP_URL` | non | Lien boutique |

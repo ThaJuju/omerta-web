@@ -105,20 +105,22 @@ doit faire 32 caracteres minimum, sinon l'application refuse de demarrer.
 
 ## 4. Base de donnees
 
-### PostgreSQL (recommande en production)
+Le projet utilise **PostgreSQL**, en production comme en developpement. Le
+provider est fixe dans `prisma/schema.prisma` : aucune bascule a faire, et
+`prisma/schema.prisma` ne doit jamais etre modifie sur le serveur.
+
+### Creer le role et la base
 
 ```bash
-sudo -u postgres psql -c "CREATE USER omerta WITH PASSWORD 'MOTDEPASSE';"
-sudo -u postgres psql -c "CREATE DATABASE omerta OWNER omerta;"
+sudo -u postgres psql -c "CREATE ROLE omerta_web_user LOGIN PASSWORD 'MOTDEPASSE';"
+sudo -u postgres createdb -O omerta_web_user omerta_web
+sudo -u postgres psql -d omerta_web -c "GRANT ALL ON SCHEMA public TO omerta_web_user;"
 ```
 
-Puis basculer Prisma sur PostgreSQL dans `prisma/schema.prisma` :
+Reporter les memes valeurs dans `DATABASE_URL` (etape 3) :
 
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+```
+postgresql://omerta_web_user:MOTDEPASSE@127.0.0.1:5432/omerta_web?schema=public
 ```
 
 ### Creer le schema
@@ -129,13 +131,17 @@ npx prisma generate
 npx prisma db push
 ```
 
-Verification : `npx prisma db execute --stdin <<< "SELECT 1;"` doit reussir.
+Le projet n'a pas d'historique de migrations : `prisma db push` applique le
+schema directement. C'est aussi la commande a rejouer apres chaque mise a jour
+qui touche `prisma/schema.prisma`.
 
-### SQLite (acceptable pour un petit volume)
+Verification :
 
-Garder `provider = "sqlite"` et `DATABASE_URL="file:/var/www/omerta-web/prisma/prod.db"`.
-Le fichier doit etre inscriptible par l'utilisateur qui execute pm2, et
-**inclus dans les sauvegardes**.
+```bash
+psql "$DATABASE_URL" -c "\dt"
+```
+
+Doit lister les tables `StaffUser` et `Candidature`.
 
 ---
 
@@ -270,7 +276,7 @@ Verifier ensuite : `pm2 logs omerta-web --lines 20 --nostream`
 
 A sauvegarder regulierement :
 
-- La base de donnees (`pg_dump omerta` ou le fichier `prisma/prod.db`)
+- La base de donnees : `pg_dump omerta_web > sauvegarde.sql`
 - Le fichier `.env`, absent du depot et impossible a regenerer a l'identique
 
 Perdre `SESSION_SECRET` deconnecte tout le staff mais ne detruit aucune donnee.

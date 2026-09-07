@@ -3,7 +3,7 @@
 Site du serveur GTA V roleplay **Omerta FA** : vitrine, recrutement
 (staff et animateurs) et dashboard de traitement des candidatures.
 
-**Stack** — Next.js 15 App Router · TypeScript · Tailwind CSS v4 · Prisma · Zod
+**Stack** — Next.js 15 App Router · TypeScript · Tailwind CSS v4 · Prisma + PostgreSQL · Zod
 
 ## Deploiement
 
@@ -22,7 +22,13 @@ npm run build && pm2 restart omerta-web
   dans le navigateur. Le webhook Discord, l'adresse du serveur FiveM et
   `SESSION_SECRET` restent cote serveur. L'ancien site fuitait son webhook dans
   un fichier public : ne pas refaire cette erreur.
-- **Ne jamais committer `.env` ni `prisma/*.db`.** Ils sont dans `.gitignore`.
+- **Ne jamais committer `.env`.** Il est dans `.gitignore`.
+- **PostgreSQL est le seul provider**, en developpement comme en production.
+  Ne jamais rebasculer `prisma/schema.prisma` sur SQLite : le serveur de
+  production devait autrefois editer ce fichier a la main, ce qui provoquait un
+  conflit a chaque `git pull`.
+- **Pas de migrations Prisma.** Le projet applique le schema avec
+  `npx prisma generate && npx prisma db push`.
 - **Toute donnee entrante est validee cote serveur** avec les schemas Zod de
   `src/lib/validation.ts`. La validation cliente n'est qu'un confort.
 - **Les variables `NEXT_PUBLIC_*` sont figees au build.** Les modifier impose un

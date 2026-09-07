@@ -3,9 +3,6 @@ node_modules/
 out/
 .env
 .env.local
-*.db
-*.db-journal
-prisma/dev.db*
 
 # Sauvegardes et fichiers de travail
 *.log

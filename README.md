@@ -29,10 +29,37 @@ elements interactifs.
 
 ## Demarrage
 
+Le projet utilise **PostgreSQL en developpement comme en production** : meme
+provider partout, aucune bascule a faire au deploiement.
+
+### 1. Une base PostgreSQL locale
+
+PostgreSQL 14 ou plus suffit. S'il n'est pas installe :
+
+```bash
+sudo apt install postgresql
+```
+
+Creer le role et la base de developpement :
+
+```bash
+sudo -u postgres psql -c "CREATE ROLE omerta_web_user LOGIN PASSWORD 'motdepasse';"
+sudo -u postgres createdb -O omerta_web_user omerta_web
+sudo -u postgres psql -d omerta_web -c "GRANT ALL ON SCHEMA public TO omerta_web_user;"
+```
+
+Verification :
+
+```bash
+psql "postgresql://omerta_web_user:motdepasse@127.0.0.1:5432/omerta_web" -c "SELECT 1;"
+```
+
+### 2. Lancer le projet
+
 ```bash
 npm install
-cp .env.example .env      # puis renseigner les valeurs (voir plus bas)
-npm run db:push           # cree le schema de la base
+cp .env.example .env      # renseigner DATABASE_URL et SESSION_SECRET
+npm run db:push           # cree le schema dans la base
 node prisma/seed.mjs <identifiant>   # premier compte admin, mot de passe genere
 npm run dev               # http://localhost:3100 (Turbopack)
 ```
@@ -41,7 +68,7 @@ npm run dev               # http://localhost:3100 (Turbopack)
 
 | Variable | Obligatoire | Role |
 |---|---|---|
-| `DATABASE_URL` | oui | `file:./dev.db` en dev, `postgresql://...` en prod |
+| `DATABASE_URL` | oui | URL PostgreSQL, ex. `postgresql://omerta_web_user:...@127.0.0.1:5432/omerta_web?schema=public` |
 | `SESSION_SECRET` | oui | Signature des sessions staff. `openssl rand -base64 32` |
 | `DISCORD_WEBHOOK_STAFF` | non | Salon recevant les candidatures **staff** |
 | `DISCORD_WEBHOOK_ANIMATEUR` | non | Salon recevant les candidatures **animateur** |
@@ -132,8 +159,9 @@ Un changement de code n'est **pas** pris en compte a chaud : il faut
   alias redirigent plutot que de servir un duplicata.
 - **Limitation de debit** : en memoire, donc valable pour une instance unique.
   Passer a Redis en cas de deploiement multi-instances.
-- **Passage a PostgreSQL** : changer `provider` dans `prisma/schema.prisma` et
-  `DATABASE_URL`, puis `npm run db:push`. Aucun autre changement de code.
+- **Migrations** : le projet utilise `prisma db push`, sans historique de
+  migrations. Apres toute modification de `prisma/schema.prisma`, jouer
+  `npx prisma generate && npx prisma db push`.
 
 ## Recrutement
 

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "./Icon";
-import { questions } from "@/lib/questions";
+import { questionsPour } from "@/lib/questions";
 import { postes, posteLabel } from "@/lib/postes";
 
 export type CandidatureRow = Record<string, string | number | null> & {
@@ -24,7 +24,6 @@ const STATUTS = {
   REFUSEE: { label: "Refusee", classe: "border-danger/40 bg-danger/10 text-danger" },
 } as const;
 
-const toutesQuestions = questions.flat();
 
 export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[] }) {
   const router = useRouter();
@@ -179,7 +178,7 @@ export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[]
 
                 {deployee && (
                   <dl className="space-y-5 border-t border-line bg-void p-6">
-                    {toutesQuestions.map((question) => (
+                    {questionsPour(candidature.poste).map((question) => (
                       <div key={question.nom}>
                         <dt className="kicker text-[0.65rem]">
                           {question.label}

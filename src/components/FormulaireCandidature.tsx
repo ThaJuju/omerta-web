@@ -1,23 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "./Icon";
-import { questions } from "@/lib/questions";
-import { postes } from "@/lib/postes";
-import { candidatureSchema, etapes } from "@/lib/validation";
+import { etapesPour } from "@/lib/questions";
+import { postes, type Poste } from "@/lib/postes";
+import { candidatureSchema } from "@/lib/validation";
 
 type Valeurs = Record<string, string>;
 type Erreurs = Record<string, string>;
 
-const valeursInitiales: Valeurs = Object.fromEntries(
-  questions.flat().map((question) => [question.nom, ""]),
-);
-valeursInitiales.poste = "";
-
 export function FormulaireCandidature() {
   const [etape, setEtape] = useState(0);
-  const [valeurs, setValeurs] = useState<Valeurs>(valeursInitiales);
+  const [valeurs, setValeurs] = useState<Valeurs>({ poste: "" });
+
+  // Le parcours depend du poste : les deux equipes ne posent pas les memes
+  // questions. Tant qu'aucun poste n'est choisi, seule l'etape 0 existe.
+  const parcours = useMemo(
+    () => (valeurs.poste ? etapesPour(valeurs.poste as Poste) : []),
+    [valeurs.poste],
+  );
+
+  const titres = ["Poste vise", ...parcours.map((e) => e.titre)];
+  const questionsEtape = etape === 0 ? [] : (parcours[etape - 1]?.questions ?? []);
+  const total = parcours.length + 1;
   const [erreurs, setErreurs] = useState<Erreurs>({});
   const [envoi, setEnvoi] = useState(false);
   const [erreurGlobale, setErreurGlobale] = useState<string | null>(null);
@@ -36,10 +42,16 @@ export function FormulaireCandidature() {
   /// Valide uniquement les champs de l'etape courante, en reutilisant le
   /// meme schema Zod que le serveur.
   const validerEtape = (index: number): boolean => {
+    if (index === 0) {
+      if (valeurs.poste) return true;
+      setErreurs({ poste: "Choisissez le poste vise." });
+      return false;
+    }
+
     const resultat = candidatureSchema.safeParse(valeurs);
     if (resultat.success) return true;
 
-    const champsEtape = etapes[index].champs as ReadonlyArray<string>;
+    const champsEtape = (parcours[index - 1]?.questions ?? []).map((q) => q.nom);
     const trouvees: Erreurs = {};
 
     for (const probleme of resultat.error.issues) {
@@ -89,10 +101,10 @@ export function FormulaireCandidature() {
         if (data.erreurs) {
           setErreurs(data.erreurs);
           const premierChamp = Object.keys(data.erreurs)[0];
-          const indexEtape = etapes.findIndex((e) =>
-            (e.champs as ReadonlyArray<string>).includes(premierChamp),
+          const indexEtape = parcours.findIndex((e) =>
+            e.questions.some((q) => q.nom === premierChamp),
           );
-          if (indexEtape !== -1) setEtape(indexEtape);
+          if (indexEtape !== -1) setEtape(indexEtape + 1);
         }
         setErreurGlobale(data.message || "La candidature n'a pas pu etre envoyee.");
         return;
@@ -130,18 +142,18 @@ export function FormulaireCandidature() {
     );
   }
 
-  const derniere = etape === questions.length - 1;
+  const derniere = etape > 0 && etape === parcours.length;
 
   return (
     <div className="panel border-t-2 border-t-accent p-6 sm:p-10">
       <p className="kicker">Recrutement · Staff & Animateurs</p>
       <h1 className="display mt-3 text-[clamp(2rem,5vw,3rem)]">
-        {etapes[etape].titre}
+        {titres[etape]}
       </h1>
 
       <ol className="mt-8 flex gap-3" aria-label="Progression">
-        {etapes.map((definition, index) => (
-          <li key={definition.titre} className="flex-1">
+        {titres.map((titre, index) => (
+          <li key={titre} className="flex-1">
             <div
               className={`h-px transition-colors duration-300 ${
                 index <= etape ? "bg-accent" : "bg-line-strong"
@@ -153,7 +165,7 @@ export function FormulaireCandidature() {
               }`}
             >
               {String(index + 1).padStart(2, "0")}
-              <span className="hidden sm:inline"> · {definition.titre}</span>
+              <span className="hidden sm:inline"> · {titre}</span>
             </p>
           </li>
         ))}
@@ -212,7 +224,7 @@ export function FormulaireCandidature() {
           </fieldset>
         )}
 
-        {questions[etape].map((question) => {
+        {questionsEtape.map((question) => {
           const erreur = erreurs[question.nom];
           const idErreur = `${question.nom}-erreur`;
 

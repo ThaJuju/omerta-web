@@ -23,32 +23,37 @@ model StaffUser {
   reviewed Candidature[] @relation("ReviewedBy")
 }
 
-/// Candidature au recrutement staff, soumise en une seule fois par le formulaire.
+/// Candidature au recrutement. Les deux parcours ne remplissent pas les memes
+/// champs : ceux propres a un poste sont donc optionnels.
 model Candidature {
   id     String @id @default(cuid())
   status String @default("EN_ATTENTE") // EN_ATTENTE | ACCEPTEE | REFUSEE
   poste  String @default("STAFF")      // STAFF | ANIMATEUR
 
-  // Etape 1 — informations IRL
-  discordTag    String
-  prenom        String
-  dateNaissance String
-  age           Int
-  disponibilite String
+  // Communs aux deux parcours
+  discordTag       String
+  prenom           String
+  age              Int
+  ancienneteOmerta String
+  motivation       String
 
-  // Etape 2 — experience
-  heuresFiveM       String
-  serveursJoues     String
-  experienceStaff   String
-  ancienneteOmerta  String
-  activiteServeur   String
-  historiqueSanction String
-  motivation        String
+  // Parcours staff
+  dateNaissance      String?
+  disponibilite      String?
+  heuresFiveM        String?
+  serveursJoues      String?
+  experienceStaff    String?
+  activiteServeur    String?
+  historiqueSanction String?
+  decouverteServeur  String?
+  pourquoiToi        String?
+  pubOuLive          String?
 
-  // Etape 3 — questions ouvertes
-  decouverteServeur String
-  pourquoiToi       String
-  pubOuLive         String
+  // Parcours animation
+  presentationIRL     String?
+  experienceAnimation String?
+  exemplesEvenements  String?
+  plaisirAnimation    String?
 
   createdAt  DateTime  @default(now())
   reviewedAt DateTime?

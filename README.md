@@ -74,7 +74,7 @@ src/
   lib/
     site.ts                     Textes et navigation — source unique
     postes.ts                   Postes ouverts au recrutement (Staff, Animateur)
-    questions.ts                Les 15 questions du recrutement
+    questions.ts                Un parcours de questions par poste
     validation.ts               Schemas Zod partages client/serveur
     session.ts                  Sessions JWT en cookie HttpOnly
     discord.ts                  Envoi du webhook
@@ -137,13 +137,30 @@ Un changement de code n'est **pas** pris en compte a chaud : il faut
 
 ## Recrutement
 
-Un seul formulaire couvre deux equipes : **Staff** (moderation) et **Animateur**
-(evenements). Le poste est choisi a l'etape 1 et stocke dans `Candidature.poste`.
+Un seul formulaire couvre deux equipes, avec **des questions differentes** :
 
-Pour ouvrir un troisieme poste, ajouter une entree dans `src/lib/postes.ts` et
-la valeur correspondante dans l'enum `poste` de `src/lib/validation.ts` — le
-formulaire, le webhook Discord et les filtres du dashboard suivent
-automatiquement.
+| Poste | Etapes | Questions |
+|---|---|---|
+| Staff | Informations IRL · RolePlay · Complementaires | 15 |
+| Animateur | Presentation · Experience · Motivation | 9 |
+
+Le poste est choisi a l'etape 1 ; le parcours affiche ensuite depend de ce
+choix. La validation est une **union discriminee** Zod : une candidature
+animateur n'est jamais jugee sur les champs du parcours staff, et inversement.
+En base, les champs propres a un poste sont donc optionnels.
+
+L'age minimum est defini par `AGE_MINIMUM` dans `src/lib/validation.ts`
+(16 ans pour les deux postes).
+
+Pour ouvrir un troisieme poste :
+
+1. Une entree dans `src/lib/postes.ts`
+2. Le parcours de questions dans `src/lib/questions.ts`
+3. Un schema et une branche de l'union dans `src/lib/validation.ts`
+4. Les champs correspondants (optionnels) dans `prisma/schema.prisma`
+
+Le formulaire, l'embed Discord et le dashboard se derivent automatiquement des
+questions du poste — aucun de ces trois fichiers n'est a modifier.
 
 ## Ce qui reste a faire
 

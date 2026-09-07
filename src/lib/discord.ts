@@ -1,6 +1,7 @@
 import type { CandidatureInput } from "./validation";
 import { posteLabel } from "./postes";
 import { questionsPour } from "./questions";
+import { AGE_ATTENDU } from "./validation";
 
 /// Un webhook par poste : les candidatures staff et animateur n'atterrissent
 /// pas dans le meme salon. `DISCORD_WEBHOOK_URL` sert de repli commun si l'un
@@ -48,10 +49,18 @@ export async function notifierCandidature(
     embeds: [
       {
         title: `Nouvelle candidature — ${posteLabel(candidature.poste)}`,
-        color: COULEURS[candidature.poste] ?? 0x5b9dd9,
+        color:
+          candidature.age < AGE_ATTENDU
+            ? 0xfbbf24
+            : (COULEURS[candidature.poste] ?? 0x5b9dd9),
         timestamp: new Date().toISOString(),
         fields: [champ("Discord", candidature.discordTag, true), ...champsPoste].slice(0, 25),
-        footer: { text: `Candidature ${candidature.id}` },
+        footer: {
+          text:
+            candidature.age < AGE_ATTENDU
+              ? `Candidature ${candidature.id} · MINEUR (${candidature.age} ans)`
+              : `Candidature ${candidature.id}`,
+        },
       },
     ],
   };

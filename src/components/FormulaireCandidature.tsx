@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icon } from "./Icon";
 import { etapesPour } from "@/lib/questions";
 import { postes, type Poste } from "@/lib/postes";
-import { candidatureSchema } from "@/lib/validation";
+import { candidatureSchema, AGE_ATTENDU } from "@/lib/validation";
 
 type Valeurs = Record<string, string>;
 type Erreurs = Record<string, string>;
@@ -263,6 +263,16 @@ export function FormulaireCandidature() {
                   onChange={(event) => modifier(question.nom, event.target.value)}
                 />
               )}
+
+              {question.nom === "age" &&
+                Number(valeurs.age) > 0 &&
+                Number(valeurs.age) < AGE_ATTENDU && (
+                  <p className="mt-2 border-l-2 border-warn bg-warn/5 px-3 py-2 text-xs leading-relaxed text-warn">
+                    Vous avez moins de {AGE_ATTENDU} ans. Votre candidature sera
+                    transmise et etudiee, mais l&apos;equipe est en principe
+                    reservee aux majeurs.
+                  </p>
+                )}
 
               {question.aide && !erreur && (
                 <p className="mt-1.5 text-xs text-ink-soft">{question.aide}</p>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "./Icon";
 import { questionsPour } from "@/lib/questions";
 import { postes, posteLabel } from "@/lib/postes";
+import { AGE_ATTENDU } from "@/lib/validation";
 
 export type CandidatureRow = Record<string, string | number | null> & {
   id: string;
@@ -138,6 +139,11 @@ export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[]
                       </span>
                     </p>
                     <p className="mt-0.5 text-xs text-ink-soft">
+                      {Number(candidature.age) < AGE_ATTENDU && (
+                        <span className="mr-2 border border-warn/50 bg-warn/10 px-1.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-warn">
+                          Mineur
+                        </span>
+                      )}
                       {candidature.age} ans · recue le{" "}
                       {new Date(candidature.createdAt).toLocaleDateString("fr-FR", {
                         day: "2-digit",

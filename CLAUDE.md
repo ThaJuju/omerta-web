@@ -27,6 +27,9 @@ npm run build && pm2 restart omerta-web
   `src/lib/validation.ts`. La validation cliente n'est qu'un confort.
 - **Les variables `NEXT_PUBLIC_*` sont figees au build.** Les modifier impose un
   `npm run build`, un `pm2 restart` seul ne suffit pas.
+- **L'age n'est pas un filtre.** `AGE_ATTENDU` (18 ans) sert a informer et a
+  signaler, jamais a rejeter : l'equipe decide elle-meme de chaque dossier. Ne
+  pas transformer cette constante en validation bloquante.
 - **Contraste minimum 4.5:1** pour tout texte. La palette actuelle respecte
   WCAG AA ; verifier avant d'introduire une couleur.
 

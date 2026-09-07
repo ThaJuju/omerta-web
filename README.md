@@ -149,8 +149,19 @@ choix. La validation est une **union discriminee** Zod : une candidature
 animateur n'est jamais jugee sur les champs du parcours staff, et inversement.
 En base, les champs propres a un poste sont donc optionnels.
 
-L'age minimum est defini par `AGE_MINIMUM` dans `src/lib/validation.ts`
-(16 ans pour les deux postes).
+### Age
+
+`AGE_ATTENDU` vaut **18 ans** (`src/lib/validation.ts`) et n'est **pas
+bloquant** : c'est l'equipe qui tranche, pas le formulaire.
+
+- Le champ affiche l'attente, et un avertissement apparait sous les 18 ans —
+  sans empecher de continuer.
+- La candidature est enregistree et transmise normalement.
+- Elle arrive **signalee** : embed Discord en orange avec la mention
+  `MINEUR (17 ans)` en pied, et badge `Mineur` sur la fiche du dashboard.
+
+Seul un plancher technique de 13 ans (minimum impose par Discord) ecarte les
+saisies absurdes.
 
 Pour ouvrir un troisieme poste :
 

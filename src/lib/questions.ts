@@ -21,7 +21,13 @@ const STAFF: Etape[] = [
       { nom: "discordTag", label: "Votre identifiant Discord", placeholder: "Ex: riko739", type: "text" },
       { nom: "prenom", label: "Quel est votre prenom ?", placeholder: "Ex: Alex", type: "text" },
       { nom: "dateNaissance", label: "Date de naissance", placeholder: "JJ/MM/AAAA", type: "text" },
-      { nom: "age", label: "Age", placeholder: "18", type: "number" },
+      {
+        nom: "age",
+        label: "Age",
+        placeholder: "18",
+        type: "number",
+        aide: "L'equipe est en principe reservee aux 18 ans et plus. Vous pouvez postuler quand meme : le staff etudie chaque dossier.",
+      },
       {
         nom: "disponibilite",
         label: "Disponibilite",
@@ -110,7 +116,13 @@ const ANIMATEUR: Etape[] = [
         placeholder: "Ex: Je m'appelle Reda, j'ai 18 ans, je suis franco-algerien",
         type: "textarea",
       },
-      { nom: "age", label: "Age", placeholder: "18", type: "number" },
+      {
+        nom: "age",
+        label: "Age",
+        placeholder: "18",
+        type: "number",
+        aide: "L'equipe est en principe reservee aux 18 ans et plus. Vous pouvez postuler quand meme : le staff etudie chaque dossier.",
+      },
       {
         nom: "ancienneteOmerta",
         label: "Depuis combien de temps joues-tu sur Omerta FA ?",

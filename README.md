@@ -113,9 +113,21 @@ Un changement de code n'est **pas** pris en compte a chaud : il faut
   possible, mais il finit dans l'historique du shell).
 - **`.env`** : le `SESSION_SECRET` present est une valeur de developpement.
   En regenerer une pour la production (`openssl rand -base64 32`).
-- **Anciennes URLs** : `/index`, `/pages/formulaire`, `/pages/discord`,
-  `/pages/login.php` et `/pages/admin.php` redirigent en 308 vers les nouvelles.
-  Les liens deja partages sur Discord continuent de fonctionner.
+- **Compatibilite des anciens liens** : 24 URLs de l'ancien site et leurs
+  variantes redirigent en 308 vers les pages actuelles, pour que les liens deja
+  partages sur Discord continuent de fonctionner.
+
+  | Destination | Alias acceptes |
+  |---|---|
+  | `/candidature` | `/formulaire`, `/formulaire2`, `/formulaire3`, `/formulaire.html`, `/recrutement`, et les memes sous `/pages/` |
+  | `/discord` | `/pages/discord`, `/pages/discord.html` |
+  | `/staff/login` | `/login`, `/connexion`, `/pages/login`, `/pages/login.php` |
+  | `/staff` | `/admin`, `/pages/admin`, `/pages/admin.php` |
+  | `/` | `/index`, `/index.html`, `/index.php`, `/accueil` |
+
+  La liste est declaree dans `next.config.mjs`. Ajouter un alias : une entree
+  dans l'objet `alias`. Chaque page garde **une seule URL canonique**, les
+  alias redirigent plutot que de servir un duplicata.
 - **Limitation de debit** : en memoire, donc valable pour une instance unique.
   Passer a Redis en cas de deploiement multi-instances.
 - **Passage a PostgreSQL** : changer `provider` dans `prisma/schema.prisma` et

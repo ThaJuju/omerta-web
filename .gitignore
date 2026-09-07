@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+*.db
+*.db-journal
+prisma/dev.db*
+
+# Sauvegardes et fichiers de travail
+*.log
+*.bak
+.DS_Store
+.claude/settings.local.json
+*.tsbuildinfo

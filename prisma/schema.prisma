@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Passer a "postgresql" en production, le reste du schema est compatible.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Membre du staff pouvant acceder au dashboard.
+model StaffUser {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String?
+  discordId    String?   @unique
+  discordTag   String?
+  role         String    @default("MODERATEUR") // MODERATEUR | ADMIN
+  approved     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  lastLoginAt  DateTime?
+
+  reviewed Candidature[] @relation("ReviewedBy")
+}
+
+/// Candidature au recrutement staff, soumise en une seule fois par le formulaire.
+model Candidature {
+  id     String @id @default(cuid())
+  status String @default("EN_ATTENTE") // EN_ATTENTE | ACCEPTEE | REFUSEE
+  poste  String @default("STAFF")      // STAFF | ANIMATEUR
+
+  // Etape 1 — informations IRL
+  discordTag    String
+  prenom        String
+  dateNaissance String
+  age           Int
+  disponibilite String
+
+  // Etape 2 — experience
+  heuresFiveM       String
+  serveursJoues     String
+  experienceStaff   String
+  ancienneteOmerta  String
+  activiteServeur   String
+  historiqueSanction String
+  motivation        String
+
+  // Etape 3 — questions ouvertes
+  decouverteServeur String
+  pourquoiToi       String
+  pubOuLive         String
+
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+  noteStaff  String?
+
+  reviewedBy   StaffUser? @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedById String?
+
+  @@index([status, createdAt])
+  @@index([poste, status])
+}

@@ -81,6 +81,8 @@ Valeurs **optionnelles** mais recommandees :
 ```bash
 DISCORD_WEBHOOK_STAFF=""          # salon des candidatures staff
 DISCORD_WEBHOOK_ANIMATEUR=""      # salon des candidatures animateur
+DISCORD_ROLE_STAFF=""             # role notifie (id numerique, vide = aucune notif)
+DISCORD_ROLE_ANIMATEUR=""         # role notifie pour les candidatures animateur
 FIVEM_SERVER_URL="https://c90l6t8d.gen.addveo.com:443"
 NEXT_PUBLIC_JOIN_URL="https://cfx.re/join/gad36ex"
 NEXT_PUBLIC_DISCORD_INVITE="https://discord.gg/omertarp"

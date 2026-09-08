@@ -7,6 +7,23 @@ import { ageDepuis } from "./age";
 /// Un webhook par poste : les candidatures staff et animateur n'atterrissent
 /// pas dans le meme salon. `DISCORD_WEBHOOK_URL` sert de repli commun si l'un
 /// des deux n'est pas renseigne.
+/// Un identifiant Discord numerique (17 a 20 chiffres). Rendu en `<@id>`, il
+/// devient un lien cliquable vers le profil du candidat. Un pseudo n'en est
+/// pas un et reste affiche tel quel.
+const ID_DISCORD = /^\d{17,20}$/;
+
+/// Role a notifier a l'arrivee d'une candidature, par poste. Vide ou absent :
+/// aucune notification n'est declenchee.
+function rolePour(poste: string): string | undefined {
+  const parPoste: Record<string, string | undefined> = {
+    STAFF: process.env.DISCORD_ROLE_STAFF,
+    ANIMATEUR: process.env.DISCORD_ROLE_ANIMATEUR,
+  };
+
+  const role = parPoste[poste]?.trim();
+  return role && ID_DISCORD.test(role) ? role : undefined;
+}
+
 function webhookPour(poste: string): string | undefined {
   const parPoste: Record<string, string | undefined> = {
     STAFF: process.env.DISCORD_WEBHOOK_STAFF,
@@ -15,11 +32,6 @@ function webhookPour(poste: string): string | undefined {
 
   return parPoste[poste] || process.env.DISCORD_WEBHOOK_URL;
 }
-
-/// Un identifiant Discord numerique (17 a 20 chiffres). Rendu en `<@id>`, il
-/// devient un lien cliquable vers le profil du candidat. Un pseudo n'en est
-/// pas un et reste affiche tel quel.
-const ID_DISCORD = /^\d{17,20}$/;
 
 /// Teinte de l'embed, pour distinguer les deux flux d'un coup d'oeil.
 const COULEURS: Record<string, number> = {
@@ -50,6 +62,7 @@ export async function notifierCandidature(
       champ(question.label, String(reponses[question.nom] ?? "—"), question.type !== "textarea"),
     );
 
+  const role = rolePour(candidature.poste);
   const identifiant = candidature.discordTag.trim();
   const mentionnable = ID_DISCORD.test(identifiant);
   const age = ageDepuis(candidature.dateNaissance);
@@ -58,10 +71,17 @@ export async function notifierCandidature(
   const body = {
     username: `Recrutement ${posteLabel(candidature.poste)} — Omerta FA`,
 
-    // Aucune mention n'est resolue : le champ est saisi librement par le
-    // candidat, il ne doit jamais pouvoir declencher un @everyone. La mention
-    // placee dans l'embed reste cliquable et ouvre le profil, sans notifier.
-    allowed_mentions: { parse: [] },
+    // Le role, lui, doit notifier : il est mis dans le contenu du message,
+    // une mention placee dans un embed ne declenche aucune notification.
+    content: role
+      ? `<@&${role}> · nouvelle candidature ${posteLabel(candidature.poste)}`
+      : undefined,
+
+    // Liste blanche stricte : seul le role configure peut notifier. Le champ
+    // Discord du candidat est saisi librement et ne doit jamais pouvoir
+    // declencher un @everyone. La mention du candidat reste cliquable dans
+    // l'embed et ouvre son profil, sans notifier.
+    allowed_mentions: role ? { parse: [], roles: [role] } : { parse: [] },
 
     embeds: [
       {

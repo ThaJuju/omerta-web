@@ -73,6 +73,8 @@ npm run dev               # http://localhost:3100 (Turbopack)
 | `DISCORD_WEBHOOK_STAFF` | non | Salon recevant les candidatures **staff** |
 | `DISCORD_WEBHOOK_ANIMATEUR` | non | Salon recevant les candidatures **animateur** |
 | `DISCORD_WEBHOOK_URL` | non | Repli commun si l'un des deux ci-dessus manque |
+| `DISCORD_ROLE_STAFF` | non | Role notifie a l'arrivee d'une candidature staff |
+| `DISCORD_ROLE_ANIMATEUR` | non | Role notifie a l'arrivee d'une candidature animateur |
 | `FIVEM_SERVER_URL` | non | Serveur de jeu interroge pour le compteur de joueurs |
 | `NEXT_PUBLIC_DISCORD_INVITE` | non | Lien d'invitation Discord |
 | `NEXT_PUBLIC_SHOP_URL` | non | Lien boutique |
@@ -201,9 +203,20 @@ cliquable dans l'embed Discord, et bouton vers `discord.com/users/<id>` sur la
 fiche du dashboard. Un pseudo reste accepte, mais s'affiche alors en texte
 simple, sans lien.
 
-Les mentions sont desactivees (`allowed_mentions: { parse: [] }`) : le champ
-est saisi librement par le candidat et ne doit jamais pouvoir declencher de
-notification de masse.
+### Notifications
+
+`DISCORD_ROLE_STAFF` et `DISCORD_ROLE_ANIMATEUR` prennent l'identifiant
+numerique d'un role. Renseignes, ce role est mentionne dans le message et
+**recoit une notification** a chaque nouvelle candidature du poste
+correspondant. Vides, aucune notification n'est envoyee.
+
+La mention du role est placee dans le contenu du message, pas dans l'embed :
+une mention dans un embed s'affiche mais ne notifie personne.
+
+`allowed_mentions` n'autorise que ce role, en liste blanche. Le champ Discord
+du candidat est saisi librement et ne doit jamais pouvoir declencher de
+notification de masse : sa mention reste cliquable pour ouvrir son profil, mais
+ne notifie pas.
 
 Seul un plancher technique de 13 ans (minimum impose par Discord) ecarte les
 saisies absurdes.

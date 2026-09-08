@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ageDepuis } from "./age";
 
 const texte = (min: number, max: number, champ: string) =>
   z
@@ -19,18 +20,23 @@ export const AGE_ATTENDU = 18;
 /// robots ; 13 ans est le minimum impose par les conditions de Discord.
 const AGE_PLANCHER = 13;
 
-const age = z.coerce
-  .number({
-    required_error: "Age : reponse manquante.",
-    invalid_type_error: "Age : indiquez un nombre.",
-  })
-  .int()
-  .min(AGE_PLANCHER, "Age : valeur invalide.")
-  .max(80, "Age : valeur invalide.");
+/// Seule donnee d'age collectee. L'age s'en deduit — le demander en plus
+/// ouvrirait la porte a deux reponses contradictoires, et un age stocke
+/// deviendrait faux des l'anniversaire suivant.
+const dateNaissance = z
+  .string({ required_error: "Date de naissance : reponse manquante." })
+  .trim()
+  .regex(/^\d{2}\/\d{2}\/\d{4}$/, "Date attendue au format JJ/MM/AAAA.")
+  .refine((valeur) => ageDepuis(valeur) !== null, "Cette date n'existe pas.")
+  .refine((valeur) => {
+    const age = ageDepuis(valeur);
+    return age === null || (age >= AGE_PLANCHER && age <= 80);
+  }, "Date de naissance : valeur invalide.");
 
 /// Champs communs aux deux parcours.
 const communs = {
   discordTag: texte(2, 64, "Identifiant Discord"),
+  dateNaissance,
   prenom: texte(2, 40, "Prenom"),
   ancienneteOmerta: texte(2, 120, "Anciennete sur Omerta"),
   motivation: texte(30, 1500, "Motivation"),
@@ -39,13 +45,6 @@ const communs = {
 const staffSchema = z.object({
   poste: z.literal("STAFF"),
   ...communs,
-  dateNaissance: z
-    .string({ required_error: "Date de naissance : reponse manquante." })
-    .regex(
-      /^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/(19|20)\d{2}$/,
-      "Date attendue au format JJ/MM/AAAA.",
-    ),
-  age,
   disponibilite: texte(10, 600, "Disponibilite"),
   heuresFiveM: texte(1, 40, "Heures de jeu"),
   serveursJoues: texte(2, 300, "Experience RolePlay"),
@@ -60,7 +59,6 @@ const staffSchema = z.object({
 const animateurSchema = z.object({
   poste: z.literal("ANIMATEUR"),
   ...communs,
-  age,
   presentationIRL: texte(20, 800, "Presentation IRL"),
   experienceAnimation: texte(2, 800, "Experience en animation"),
   exemplesEvenements: texte(20, 1200, "Exemples d'evenements"),

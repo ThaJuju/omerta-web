@@ -29,15 +29,15 @@ model Candidature {
   status String @default("EN_ATTENTE") // EN_ATTENTE | ACCEPTEE | REFUSEE
   poste  String @default("STAFF")      // STAFF | ANIMATEUR
 
-  // Communs aux deux parcours
+  // Communs aux deux parcours. L'age n'est pas stocke : il se deduit de la
+  // date de naissance et serait faux des l'anniversaire suivant.
   discordTag       String
   prenom           String
-  age              Int
+  dateNaissance    String
   ancienneteOmerta String
   motivation       String
 
   // Parcours staff
-  dateNaissance      String?
   disponibilite      String?
   heuresFiveM        String?
   serveursJoues      String?

@@ -179,6 +179,11 @@ En base, les champs propres a un poste sont donc optionnels.
 
 ### Age
 
+Seule la **date de naissance** est demandee ; l'age s'en deduit
+(`src/lib/age.ts`). Le stocker en plus ouvrirait la porte a deux reponses
+contradictoires, et la valeur deviendrait fausse des l'anniversaire suivant.
+Le calcul se fait en heure locale, pas en UTC.
+
 `AGE_ATTENDU` vaut **18 ans** (`src/lib/validation.ts`) et n'est **pas
 bloquant** : c'est l'equipe qui tranche, pas le formulaire.
 
@@ -187,6 +192,18 @@ bloquant** : c'est l'equipe qui tranche, pas le formulaire.
 - La candidature est enregistree et transmise normalement.
 - Elle arrive **signalee** : embed Discord en orange avec la mention
   `MINEUR (17 ans)` en pied, et badge `Mineur` sur la fiche du dashboard.
+
+### Identifiant Discord
+
+Le formulaire demande l'**identifiant numerique** (ex. `812331705548406785`),
+pas le pseudo. Il permet d'ouvrir directement le profil du candidat : mention
+cliquable dans l'embed Discord, et bouton vers `discord.com/users/<id>` sur la
+fiche du dashboard. Un pseudo reste accepte, mais s'affiche alors en texte
+simple, sans lien.
+
+Les mentions sont desactivees (`allowed_mentions: { parse: [] }`) : le champ
+est saisi librement par le candidat et ne doit jamais pouvoir declencher de
+notification de masse.
 
 Seul un plancher technique de 13 ans (minimum impose par Discord) ecarte les
 saisies absurdes.

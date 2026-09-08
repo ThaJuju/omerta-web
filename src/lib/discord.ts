@@ -2,6 +2,7 @@ import type { CandidatureInput } from "./validation";
 import { posteLabel } from "./postes";
 import { questionsPour } from "./questions";
 import { AGE_ATTENDU } from "./validation";
+import { ageDepuis } from "./age";
 
 /// Un webhook par poste : les candidatures staff et animateur n'atterrissent
 /// pas dans le meme salon. `DISCORD_WEBHOOK_URL` sert de repli commun si l'un
@@ -14,6 +15,11 @@ function webhookPour(poste: string): string | undefined {
 
   return parPoste[poste] || process.env.DISCORD_WEBHOOK_URL;
 }
+
+/// Un identifiant Discord numerique (17 a 20 chiffres). Rendu en `<@id>`, il
+/// devient un lien cliquable vers le profil du candidat. Un pseudo n'en est
+/// pas un et reste affiche tel quel.
+const ID_DISCORD = /^\d{17,20}$/;
 
 /// Teinte de l'embed, pour distinguer les deux flux d'un coup d'oeil.
 const COULEURS: Record<string, number> = {
@@ -44,22 +50,37 @@ export async function notifierCandidature(
       champ(question.label, String(reponses[question.nom] ?? "—"), question.type !== "textarea"),
     );
 
+  const identifiant = candidature.discordTag.trim();
+  const mentionnable = ID_DISCORD.test(identifiant);
+  const age = ageDepuis(candidature.dateNaissance);
+  const mineur = age !== null && age < AGE_ATTENDU;
+
   const body = {
     username: `Recrutement ${posteLabel(candidature.poste)} — Omerta FA`,
+
+    // Aucune mention n'est resolue : le champ est saisi librement par le
+    // candidat, il ne doit jamais pouvoir declencher un @everyone. La mention
+    // placee dans l'embed reste cliquable et ouvre le profil, sans notifier.
+    allowed_mentions: { parse: [] },
+
     embeds: [
       {
         title: `Nouvelle candidature — ${posteLabel(candidature.poste)}`,
-        color:
-          candidature.age < AGE_ATTENDU
-            ? 0xfbbf24
-            : (COULEURS[candidature.poste] ?? 0x5b9dd9),
+        color: mineur ? 0xfbbf24 : (COULEURS[candidature.poste] ?? 0x5b9dd9),
         timestamp: new Date().toISOString(),
-        fields: [champ("Discord", candidature.discordTag, true), ...champsPoste].slice(0, 25),
+        fields: [
+          champ(
+            "Discord",
+            mentionnable ? `<@${identifiant}> \`${identifiant}\`` : identifiant,
+            true,
+          ),
+          champ("Age", age === null ? "—" : `${age} ans`, true),
+          ...champsPoste,
+        ].slice(0, 25),
         footer: {
-          text:
-            candidature.age < AGE_ATTENDU
-              ? `Candidature ${candidature.id} · MINEUR (${candidature.age} ans)`
-              : `Candidature ${candidature.id}`,
+          text: mineur
+            ? `Candidature ${candidature.id} · MINEUR (${age} ans)`
+            : `Candidature ${candidature.id}`,
         },
       },
     ],

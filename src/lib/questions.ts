@@ -18,14 +18,19 @@ const STAFF: Etape[] = [
   {
     titre: "Informations IRL",
     questions: [
-      { nom: "discordTag", label: "Votre identifiant Discord", placeholder: "Ex: riko739", type: "text" },
-      { nom: "prenom", label: "Quel est votre prenom ?", placeholder: "Ex: Alex", type: "text" },
-      { nom: "dateNaissance", label: "Date de naissance", placeholder: "JJ/MM/AAAA", type: "text" },
       {
-        nom: "age",
-        label: "Age",
-        placeholder: "18",
-        type: "number",
+        nom: "discordTag",
+        label: "Votre identifiant Discord",
+        placeholder: "Ex: 812331705548406785",
+        type: "text",
+        aide: "L'identifiant numerique, pas le pseudo. Dans Discord : Parametres > Avance > Mode developpeur, puis clic droit sur votre nom > Copier l'identifiant.",
+      },
+      { nom: "prenom", label: "Quel est votre prenom ?", placeholder: "Ex: Alex", type: "text" },
+      {
+        nom: "dateNaissance",
+        label: "Date de naissance",
+        placeholder: "JJ/MM/AAAA",
+        type: "text",
         aide: "L'equipe est en principe reservee aux 18 ans et plus. Vous pouvez postuler quand meme : le staff etudie chaque dossier.",
       },
       {
@@ -108,7 +113,13 @@ const ANIMATEUR: Etape[] = [
   {
     titre: "Presentation",
     questions: [
-      { nom: "discordTag", label: "Votre identifiant Discord", placeholder: "Ex: reda_18", type: "text" },
+      {
+        nom: "discordTag",
+        label: "Votre identifiant Discord",
+        placeholder: "Ex: 812331705548406785",
+        type: "text",
+        aide: "L'identifiant numerique, pas le pseudo. Dans Discord : Parametres > Avance > Mode developpeur, puis clic droit sur votre nom > Copier l'identifiant.",
+      },
       { nom: "prenom", label: "Quel est votre prenom ?", placeholder: "Ex: Reda", type: "text" },
       {
         nom: "presentationIRL",
@@ -117,10 +128,10 @@ const ANIMATEUR: Etape[] = [
         type: "textarea",
       },
       {
-        nom: "age",
-        label: "Age",
-        placeholder: "18",
-        type: "number",
+        nom: "dateNaissance",
+        label: "Date de naissance",
+        placeholder: "JJ/MM/AAAA",
+        type: "text",
         aide: "L'equipe est en principe reservee aux 18 ans et plus. Vous pouvez postuler quand meme : le staff etudie chaque dossier.",
       },
       {

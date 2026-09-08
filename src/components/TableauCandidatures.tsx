@@ -6,6 +6,7 @@ import { Icon } from "./Icon";
 import { questionsPour } from "@/lib/questions";
 import { postes, posteLabel } from "@/lib/postes";
 import { AGE_ATTENDU } from "@/lib/validation";
+import { ageDepuis } from "@/lib/age";
 
 export type CandidatureRow = Record<string, string | number | null> & {
   id: string;
@@ -13,11 +14,14 @@ export type CandidatureRow = Record<string, string | number | null> & {
   poste: string;
   discordTag: string;
   prenom: string;
-  age: number;
+  dateNaissance: string;
   createdAt: string;
   noteStaff: string | null;
   reviewerNom: string | null;
 };
+
+/// Un identifiant Discord numerique : il ouvre alors le profil du candidat.
+const ID_DISCORD = /^\d{17,20}$/;
 
 const STATUTS = {
   EN_ATTENTE: { label: "En attente", classe: "border-warn/40 bg-warn/10 text-warn" },
@@ -139,12 +143,20 @@ export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[]
                       </span>
                     </p>
                     <p className="mt-0.5 text-xs text-ink-soft">
-                      {Number(candidature.age) < AGE_ATTENDU && (
-                        <span className="mr-2 border border-warn/50 bg-warn/10 px-1.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-warn">
-                          Mineur
-                        </span>
-                      )}
-                      {candidature.age} ans · recue le{" "}
+                      {(() => {
+                        const age = ageDepuis(candidature.dateNaissance);
+                        return (
+                          <>
+                            {age !== null && age < AGE_ATTENDU && (
+                              <span className="mr-2 border border-warn/50 bg-warn/10 px-1.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-warn">
+                                Mineur
+                              </span>
+                            )}
+                            {age === null ? "Age inconnu" : `${age} ans`}
+                          </>
+                        );
+                      })()}{" "}
+                      · recue le{" "}
                       {new Date(candidature.createdAt).toLocaleDateString("fr-FR", {
                         day: "2-digit",
                         month: "long",
@@ -153,6 +165,19 @@ export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[]
                       {candidature.reviewerNom && ` · traitee par ${candidature.reviewerNom}`}
                     </p>
                   </button>
+
+                  {ID_DISCORD.test(candidature.discordTag) && (
+                    <a
+                      href={`https://discord.com/users/${candidature.discordTag}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`Ouvrir le profil Discord de ${candidature.prenom}`}
+                      className="flex h-11 w-11 items-center justify-center border border-line-strong text-ink-soft transition-colors hover:border-accent hover:text-accent"
+                    >
+                      <Icon name="discord" className="h-4 w-4" />
+                      <span className="sr-only">Profil Discord</span>
+                    </a>
+                  )}
 
                   <span
                     className={` border px-2.5 py-1 text-xs font-bold ${statut.classe}`}

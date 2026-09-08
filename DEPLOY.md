@@ -294,5 +294,7 @@ Perdre la base detruit les candidatures et les comptes.
 | Compteur de joueurs bloque sur `?` | `FIVEM_SERVER_URL` faux ou serveur de jeu injoignable | `curl $FIVEM_SERVER_URL/dynamic.json` |
 | Compteur fige a une ancienne valeur | Cache d'un CDN place devant | Verifier que `no-store` traverse le proxy |
 | `429` sur le formulaire | Limitation de debit declenchee | Verifier que nginx transmet `X-Forwarded-For` |
+| Message Discord affichant `@role inconnu` | `DISCORD_ROLE_*` ne correspond a aucun role du serveur du webhook | Recopier l'identifiant depuis Parametres du serveur > Roles |
+| Candidatures recues sans notification | `DISCORD_ROLE_*` vide, ou identifiant non numerique donc ignore | Renseigner l'identifiant numerique du role |
 | Les liens externes pointent au mauvais endroit | Variables `NEXT_PUBLIC_*` modifiees sans rebuild | `npm run build` puis `pm2 restart` |
 | pm2 vide apres un reboot | `pm2 startup` non configure | Rejouer l'etape 7 |

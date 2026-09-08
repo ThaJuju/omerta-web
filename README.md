@@ -213,6 +213,11 @@ correspondant. Vides, aucune notification n'est envoyee.
 La mention du role est placee dans le contenu du message, pas dans l'embed :
 une mention dans un embed s'affiche mais ne notifie personne.
 
+> Si le message affiche **`@role inconnu`**, l'identifiant ne correspond a
+> aucun role du serveur ou poste le webhook. Le recuperer dans Discord :
+> Parametres du serveur > Roles > clic droit sur le role > Copier l'identifiant
+> — en verifiant qu'il s'agit bien du serveur du webhook.
+
 `allowed_mentions` n'autorise que ce role, en liste blanche. Le champ Discord
 du candidat est saisi librement et ne doit jamais pouvoir declencher de
 notification de masse : sa mention reste cliquable pour ouvrir son profil, mais

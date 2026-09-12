@@ -191,3 +191,99 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Corps d'article ─────────────────────────────────────────────────────
+   Le HTML vient de `rendreMarkdown()` : impossible d'y poser des classes
+   Tailwind, les styles sont donc attaches aux balises elles-memes. */
+.prose-omerta {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--color-ink-soft);
+}
+
+.prose-omerta > * + * {
+  margin-top: 1.35rem;
+}
+
+.prose-omerta h2,
+.prose-omerta h3,
+.prose-omerta h4,
+.prose-omerta h5 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  color: var(--color-ink);
+  margin-top: 2.75rem;
+}
+
+.prose-omerta h2 { font-size: 2.25rem; }
+.prose-omerta h3 { font-size: 1.7rem; }
+.prose-omerta h4 { font-size: 1.35rem; }
+.prose-omerta h5 { font-size: 1.15rem; }
+
+.prose-omerta strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.prose-omerta a {
+  color: var(--color-accent-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-omerta a:hover {
+  color: var(--color-accent);
+}
+
+.prose-omerta ul,
+.prose-omerta ol {
+  padding-left: 1.35rem;
+}
+
+.prose-omerta ul { list-style: square; }
+.prose-omerta ol { list-style: decimal; }
+.prose-omerta li::marker { color: var(--color-accent); }
+.prose-omerta li + li { margin-top: 0.5rem; }
+
+.prose-omerta blockquote {
+  border-left: 2px solid var(--color-accent);
+  background: rgb(255 100 30 / 0.06);
+  padding: 1rem 1.25rem;
+  color: var(--color-ink);
+}
+
+.prose-omerta code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  padding: 0.1rem 0.35rem;
+}
+
+.prose-omerta pre {
+  background: var(--color-void);
+  border: 1px solid var(--color-line-strong);
+  padding: 1.1rem;
+  overflow-x: auto;
+}
+
+.prose-omerta pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.prose-omerta img {
+  width: 100%;
+  border: 1px solid var(--color-line);
+}
+
+.prose-omerta hr {
+  border: 0;
+  height: 1px;
+  background: var(--color-line-strong);
+  margin-block: 2.5rem;
+}

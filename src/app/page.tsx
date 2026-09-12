@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
+import { CarteArticle } from "@/components/CarteArticle";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { Statistiques } from "@/components/Statistiques";
 import { Icon, type IconName } from "@/components/Icon";
+import { prisma } from "@/lib/prisma";
 import { site } from "@/lib/site";
 import { postes } from "@/lib/postes";
 
@@ -57,7 +59,20 @@ const etapes = [
   },
 ];
 
-export default function Accueil() {
+/// L'accueil affiche les derniers articles : elle depend donc de la base et ne
+/// peut pas etre figee au build.
+export const dynamic = "force-dynamic";
+
+export default async function Accueil() {
+  const articles = await prisma.article
+    .findMany({
+      where: { statut: "PUBLIE" },
+      orderBy: [{ epingle: "desc" }, { publieLe: "desc" }],
+      take: 3,
+      include: { auteur: { select: { username: true } } },
+    })
+    .catch(() => []);
+
   return (
     <>
       <Navbar />
@@ -132,6 +147,41 @@ export default function Accueil() {
             </ol>
           </div>
         </section>
+
+        {articles.length > 0 && (
+          <section className="mx-auto w-full max-w-[1340px] px-5 py-24 sm:px-8 sm:py-32">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <p className="kicker">Le journal</p>
+                <h2 className="display mt-6 text-[clamp(3rem,6vw,5rem)]">
+                  Dernieres<br /><span className="display-outline">actualites</span>
+                </h2>
+              </div>
+              <Link href="/blog" className="button-secondary">
+                Tous les articles <Icon name="arrowRight" className="h-4 w-4" />
+              </Link>
+            </div>
+
+            <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {articles.map((article) => (
+                <CarteArticle
+                  key={article.id}
+                  article={{
+                    slug: article.slug,
+                    titre: article.titre,
+                    extrait: article.extrait,
+                    categorie: article.categorie,
+                    couverture: article.couverture,
+                    epingle: article.epingle,
+                    contenu: article.contenu,
+                    publieLe: (article.publieLe ?? article.createdAt).toISOString(),
+                    auteur: article.auteur?.username ?? null,
+                  }}
+                />
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="relative overflow-hidden">
           <div aria-hidden="true" className="absolute inset-0 bg-[url('/assets/wallpaper.jpg')] bg-cover bg-center" />

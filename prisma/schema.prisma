@@ -20,6 +20,37 @@ model StaffUser {
   lastLoginAt  DateTime?
 
   reviewed Candidature[] @relation("ReviewedBy")
+  articles Article[]     @relation("AuteurArticle")
+}
+
+/// Article du blog. Redige depuis le dashboard staff, publie sur /blog.
+model Article {
+  id      String @id @default(cuid())
+  /// Identifiant lisible dans l'URL. Genere depuis le titre, editable ensuite :
+  /// le changer casse les liens deja partages, d'ou le champ explicite.
+  slug    String @unique
+  titre   String
+  /// Resume affiche en liste et dans les metadonnees Open Graph.
+  extrait String
+  /// Corps de l'article en Markdown restreint (voir src/lib/markdown.ts).
+  contenu String
+
+  categorie   String  @default("ACTUALITE")
+  couverture  String? // URL d'image, hebergee ailleurs
+  epingle     Boolean @default(false)
+  statut      String  @default("BROUILLON") // BROUILLON | PUBLIE
+
+  /// Date affichee et utilisee pour le tri. Renseignee a la premiere
+  /// publication, puis conservee meme si l'article repasse en brouillon.
+  publieLe  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  auteur   StaffUser? @relation("AuteurArticle", fields: [auteurId], references: [id], onDelete: SetNull)
+  auteurId String?
+
+  @@index([statut, publieLe])
+  @@index([categorie, statut])
 }
 
 /// Candidature au recrutement. Les deux parcours ne remplissent pas les memes

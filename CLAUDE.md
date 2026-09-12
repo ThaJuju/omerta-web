@@ -39,6 +39,11 @@ npm run build && pm2 restart omerta-web
 - **L'age n'est pas un filtre.** `AGE_ATTENDU` (18 ans) sert a informer et a
   signaler, jamais a rejeter : l'equipe decide elle-meme de chaque dossier. Ne
   pas transformer cette constante en validation bloquante.
+- **Le contenu des articles n'est jamais du HTML.** Il est ecrit en Markdown
+  restreint et converti par `rendreMarkdown()` de `src/lib/markdown.ts`, qui
+  echappe tout avant de transformer. Ne pas y injecter de HTML brut ni brancher
+  une bibliotheque Markdown sans assainissement : la sortie va dans un
+  `dangerouslySetInnerHTML` sur une page publique.
 - **Contraste minimum 4.5:1** pour tout texte. La palette actuelle respecte
   WCAG AA ; verifier avant d'introduire une couleur.
 
@@ -50,9 +55,14 @@ Modifier ces fichiers plutot que de dupliquer la valeur ailleurs :
 |---|---|
 | `src/lib/site.ts` | Textes editoriaux, liens externes, navigation |
 | `src/lib/postes.ts` | Postes ouverts au recrutement |
+| `src/lib/blog.ts` | Categories du blog, pagination, slug, temps de lecture |
 | `src/lib/questions.ts` | Les 15 questions du formulaire |
 | `src/lib/validation.ts` | Schemas Zod, decoupage en etapes |
 | `src/app/globals.css` | Tokens de design (couleurs, polices, utilitaires) |
+
+Ajouter une categorie de blog : une entree dans `blog.ts` **et** la valeur dans
+l'enum `categorie` de `articleSchema` (`validation.ts`). Sans la seconde, l'API
+refuse l'article.
 
 Ajouter un poste de recrutement : une entree dans `postes.ts` **et** la valeur
 dans l'enum `poste` de `validation.ts`. Le formulaire et les filtres du

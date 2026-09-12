@@ -24,6 +24,7 @@ export const site = {
 export const navigation = [
   { label: "Accueil", href: "/", icon: "home" as const },
   { label: "Reglement", href: site.links.rules, icon: "book" as const, external: true },
+  { label: "Blog", href: "/blog", icon: "news" as const },
   { label: "Recrutement", href: "/candidature", icon: "users" as const },
   { label: "Boutique", href: site.links.shop, icon: "cart" as const, external: true },
   { label: "Discord", href: "/discord", icon: "discord" as const },

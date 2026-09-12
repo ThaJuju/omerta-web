@@ -97,3 +97,56 @@ export const registerSchema = z
     message: "Les mots de passe ne correspondent pas.",
     path: ["confirm"],
   });
+
+/// ── Blog ──────────────────────────────────────────────────────────────────
+
+/// Seuls http et https sont acceptes pour une couverture : une URL `javascript:`
+/// ou `data:` finirait dans un attribut `src` de la page publique.
+const urlImage = z
+  .string()
+  .trim()
+  .max(500, "Adresse d'image trop longue.")
+  .url("Adresse d'image invalide.")
+  .refine(
+    (valeur) => /^https?:\/\//i.test(valeur),
+    "L'adresse doit commencer par http:// ou https://.",
+  );
+
+/// Le slug est genere depuis le titre cote client, mais reste modifiable : il
+/// est donc revalide ici, ou il doit rester compatible avec une URL.
+const slug = z
+  .string()
+  .trim()
+  .min(3, "Slug : 3 caracteres minimum.")
+  .max(80, "Slug : 80 caracteres maximum.")
+  .regex(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    "Slug : minuscules, chiffres et tirets uniquement.",
+  );
+
+export const articleSchema = z.object({
+  titre: texte(4, 140, "Titre"),
+  slug,
+  extrait: texte(20, 320, "Extrait"),
+  contenu: texte(50, 40000, "Contenu"),
+  categorie: z.enum([
+    "ACTUALITE",
+    "MISE_A_JOUR",
+    "EVENEMENT",
+    "REGLEMENT",
+    "COMMUNAUTE",
+  ]),
+  /// Champ facultatif : la chaine vide de l'editeur vaut « pas de couverture ».
+  couverture: z.union([urlImage, z.literal("")]).optional(),
+  epingle: z.boolean().optional(),
+  statut: z.enum(["BROUILLON", "PUBLIE"]),
+});
+
+/// Toutes les proprietes deviennent optionnelles : le dashboard peut n'envoyer
+/// que le statut pour publier ou depublier en un clic.
+export const articleMajSchema = articleSchema.partial().refine(
+  (donnees) => Object.keys(donnees).length > 0,
+  "Aucune modification fournie.",
+);
+
+export type ArticleInput = z.infer<typeof articleSchema>;

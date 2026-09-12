@@ -4,7 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { CarteArticle } from "@/components/CarteArticle";
 import { Icon } from "@/components/Icon";
 import { prisma } from "@/lib/prisma";
-import { categories, categorieLabel, PAR_PAGE } from "@/lib/blog";
+import { PAR_PAGE } from "@/lib/blog";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -16,22 +16,18 @@ export const metadata: Metadata = {
 /// rendue a la demande plutot que figee au build.
 export const dynamic = "force-dynamic";
 
-type Recherche = Promise<{ categorie?: string; page?: string }>;
+type Recherche = Promise<{ page?: string }>;
 
 export default async function PageBlog({
   searchParams,
 }: {
   searchParams: Recherche;
 }) {
-  const { categorie, page } = await searchParams;
+  const { page } = await searchParams;
 
-  const filtre = categories.some((c) => c.valeur === categorie) ? categorie : undefined;
   const numero = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
 
-  const where = {
-    statut: "PUBLIE",
-    ...(filtre ? { categorie: filtre } : {}),
-  };
+  const where = { statut: "PUBLIE" };
 
   const [articles, total] = await Promise.all([
     prisma.article.findMany({
@@ -45,13 +41,7 @@ export default async function PageBlog({
   ]);
 
   const pages = Math.max(1, Math.ceil(total / PAR_PAGE));
-  const lien = (valeurs: { categorie?: string; page?: number }) => {
-    const params = new URLSearchParams();
-    if (valeurs.categorie) params.set("categorie", valeurs.categorie);
-    if (valeurs.page && valeurs.page > 1) params.set("page", String(valeurs.page));
-    const chaine = params.toString();
-    return chaine ? `/blog?${chaine}` : "/blog";
-  };
+  const lien = (cible: number) => (cible > 1 ? `/blog?page=${cible}` : "/blog");
 
   return (
     <PageShell>
@@ -68,40 +58,9 @@ export default async function PageBlog({
           ville est ecrit ici.
         </p>
 
-        <nav
-          aria-label="Filtrer par categorie"
-          className="mt-10 flex flex-wrap gap-2"
-        >
-          <Link
-            href={lien({})}
-            className={`border px-3.5 py-2 text-sm font-semibold transition-colors ${
-              filtre
-                ? "border-line text-ink-soft hover:text-ink"
-                : "border-accent bg-accent/15 text-accent"
-            }`}
-          >
-            Tout
-          </Link>
-          {categories.map((categorieItem) => (
-            <Link
-              key={categorieItem.valeur}
-              href={lien({ categorie: categorieItem.valeur })}
-              className={`border px-3.5 py-2 text-sm font-semibold transition-colors ${
-                filtre === categorieItem.valeur
-                  ? "border-accent bg-accent/15 text-accent"
-                  : "border-line text-ink-soft hover:text-ink"
-              }`}
-            >
-              {categorieItem.label}
-            </Link>
-          ))}
-        </nav>
-
         {articles.length === 0 ? (
           <p className="panel mt-10 p-12 text-center text-ink-soft">
-            {filtre
-              ? `Aucun article publie dans la categorie « ${categorieLabel(filtre)} » pour le moment.`
-              : "Aucun article publie pour le moment. Revenez bientot."}
+            Aucun article publie pour le moment. Revenez bientot.
           </p>
         ) : (
           <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -112,7 +71,6 @@ export default async function PageBlog({
                   slug: article.slug,
                   titre: article.titre,
                   extrait: article.extrait,
-                  categorie: article.categorie,
                   couverture: article.couverture,
                   epingle: article.epingle,
                   contenu: article.contenu,
@@ -131,7 +89,7 @@ export default async function PageBlog({
           >
             {numero > 1 ? (
               <Link
-                href={lien({ categorie: filtre, page: numero - 1 })}
+                href={lien(numero - 1)}
                 className="button-secondary min-h-11 px-4 text-[0.7rem]"
               >
                 <Icon name="arrowLeft" className="h-4 w-4" /> Precedent
@@ -146,7 +104,7 @@ export default async function PageBlog({
 
             {numero < pages ? (
               <Link
-                href={lien({ categorie: filtre, page: numero + 1 })}
+                href={lien(numero + 1)}
                 className="button-secondary min-h-11 px-4 text-[0.7rem]"
               >
                 Suivant <Icon name="arrowRight" className="h-4 w-4" />

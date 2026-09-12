@@ -1,40 +1,4 @@
-/// Source unique du blog : categories, statuts et calculs derives du contenu.
-/// Ajouter une categorie ici la rend disponible partout — editeur staff,
-/// filtres publics et pastilles — mais il faut aussi l'ajouter a l'enum
-/// `categorie` de `validation.ts`, sinon l'API refusera l'article.
-export const categories = [
-  {
-    valeur: "ACTUALITE",
-    label: "Actualite",
-    resume: "Annonces et vie du serveur.",
-  },
-  {
-    valeur: "MISE_A_JOUR",
-    label: "Mise a jour",
-    resume: "Nouveautes, correctifs et changements de gameplay.",
-  },
-  {
-    valeur: "EVENEMENT",
-    label: "Evenement",
-    resume: "Animations, scenarios et temps forts RP.",
-  },
-  {
-    valeur: "REGLEMENT",
-    label: "Reglement",
-    resume: "Evolutions des regles et decisions de moderation.",
-  },
-  {
-    valeur: "COMMUNAUTE",
-    label: "Communaute",
-    resume: "Portraits, retours de joueurs et coulisses.",
-  },
-] as const;
-
-export type Categorie = (typeof categories)[number]["valeur"];
-
-export const categorieLabel = (valeur: string): string =>
-  categories.find((categorie) => categorie.valeur === valeur)?.label ?? valeur;
-
+/// Source unique du blog : statuts, pagination et calculs derives du contenu.
 export const STATUTS_ARTICLE = ["BROUILLON", "PUBLIE"] as const;
 export type StatutArticle = (typeof STATUTS_ARTICLE)[number];
 

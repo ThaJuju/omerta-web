@@ -35,7 +35,6 @@ model Article {
   /// Corps de l'article en Markdown restreint (voir src/lib/markdown.ts).
   contenu String
 
-  categorie   String  @default("ACTUALITE")
   couverture  String? // URL d'image, hebergee ailleurs
   epingle     Boolean @default(false)
   statut      String  @default("BROUILLON") // BROUILLON | PUBLIE
@@ -50,7 +49,6 @@ model Article {
   auteurId String?
 
   @@index([statut, publieLe])
-  @@index([categorie, statut])
 }
 
 /// Candidature au recrutement. Les deux parcours ne remplissent pas les memes

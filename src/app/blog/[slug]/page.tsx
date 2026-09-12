@@ -5,7 +5,7 @@ import { PageShell } from "@/components/PageShell";
 import { CarteArticle } from "@/components/CarteArticle";
 import { Icon } from "@/components/Icon";
 import { prisma } from "@/lib/prisma";
-import { categorieLabel, dateLisible, tempsLecture } from "@/lib/blog";
+import { dateLisible, tempsLecture } from "@/lib/blog";
 import { rendreMarkdown } from "@/lib/markdown";
 
 export const dynamic = "force-dynamic";
@@ -48,12 +48,9 @@ export default async function PageArticle({ params }: { params: Params }) {
 
   const date = article.publieLe ?? article.createdAt;
 
+  // Faute de categories, la suggestion se fait sur la fraicheur.
   const similaires = await prisma.article.findMany({
-    where: {
-      statut: "PUBLIE",
-      categorie: article.categorie,
-      NOT: { id: article.id },
-    },
+    where: { statut: "PUBLIE", NOT: { id: article.id } },
     orderBy: { publieLe: "desc" },
     take: 3,
     include: { auteur: { select: { username: true } } },
@@ -70,7 +67,7 @@ export default async function PageArticle({ params }: { params: Params }) {
         </Link>
 
         <header className="mt-8 max-w-4xl">
-          <p className="kicker">{categorieLabel(article.categorie)}</p>
+          <p className="kicker">Le journal</p>
           <h1 className="display mt-5 text-[clamp(2.5rem,6.5vw,5rem)]">
             {article.titre}
           </h1>
@@ -103,7 +100,7 @@ export default async function PageArticle({ params }: { params: Params }) {
         <section className="mt-20 border-t border-line pt-12">
           <p className="kicker">A lire aussi</p>
           <h2 className="display mt-4 text-4xl">
-            Dans la meme categorie
+            Derniers articles
           </h2>
           <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {similaires.map((autre) => (
@@ -113,7 +110,6 @@ export default async function PageArticle({ params }: { params: Params }) {
                   slug: autre.slug,
                   titre: autre.titre,
                   extrait: autre.extrait,
-                  categorie: autre.categorie,
                   couverture: autre.couverture,
                   epingle: autre.epingle,
                   contenu: autre.contenu,

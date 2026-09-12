@@ -170,7 +170,6 @@ export default async function Accueil() {
                     slug: article.slug,
                     titre: article.titre,
                     extrait: article.extrait,
-                    categorie: article.categorie,
                     couverture: article.couverture,
                     epingle: article.epingle,
                     contenu: article.contenu,

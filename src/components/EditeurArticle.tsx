@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Icon } from "./Icon";
-import { categories, slugifier, tempsLecture } from "@/lib/blog";
+import { slugifier, tempsLecture } from "@/lib/blog";
 import { rendreMarkdown } from "@/lib/markdown";
 import type { ArticleRow } from "./GestionArticles";
 
@@ -11,7 +11,6 @@ export type Brouillon = {
   slug: string;
   extrait: string;
   contenu: string;
-  categorie: string;
   couverture: string;
   epingle: boolean;
   statut: string;
@@ -22,7 +21,6 @@ const VIDE: Brouillon = {
   slug: "",
   extrait: "",
   contenu: "",
-  categorie: "ACTUALITE",
   couverture: "",
   epingle: false,
   statut: "BROUILLON",
@@ -35,7 +33,6 @@ const depuis = (article: ArticleRow | null): Brouillon =>
         slug: article.slug,
         extrait: article.extrait,
         contenu: article.contenu,
-        categorie: article.categorie,
         couverture: article.couverture ?? "",
         epingle: article.epingle,
         statut: article.statut,
@@ -187,26 +184,7 @@ export function EditeurArticle({
           {erreur("slug")}
         </div>
 
-        <div>
-          <label className={label} htmlFor="categorie">
-            Categorie
-          </label>
-          <select
-            id="categorie"
-            className="field"
-            value={valeurs.categorie}
-            onChange={(evenement) => modifier("categorie", evenement.target.value)}
-          >
-            {categories.map((categorie) => (
-              <option key={categorie.valeur} value={categorie.valeur}>
-                {categorie.label}
-              </option>
-            ))}
-          </select>
-          {erreur("categorie")}
-        </div>
-
-        <div>
+        <div className="lg:col-span-2">
           <label className={label} htmlFor="couverture">
             Image de couverture (URL, facultatif)
           </label>

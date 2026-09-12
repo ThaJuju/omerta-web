@@ -55,14 +55,10 @@ Modifier ces fichiers plutot que de dupliquer la valeur ailleurs :
 |---|---|
 | `src/lib/site.ts` | Textes editoriaux, liens externes, navigation |
 | `src/lib/postes.ts` | Postes ouverts au recrutement |
-| `src/lib/blog.ts` | Categories du blog, pagination, slug, temps de lecture |
+| `src/lib/blog.ts` | Pagination du blog, slug, temps de lecture |
 | `src/lib/questions.ts` | Les 15 questions du formulaire |
 | `src/lib/validation.ts` | Schemas Zod, decoupage en etapes |
 | `src/app/globals.css` | Tokens de design (couleurs, polices, utilitaires) |
-
-Ajouter une categorie de blog : une entree dans `blog.ts` **et** la valeur dans
-l'enum `categorie` de `articleSchema` (`validation.ts`). Sans la seconde, l'API
-refuse l'article.
 
 Ajouter un poste de recrutement : une entree dans `postes.ts` **et** la valeur
 dans l'enum `poste` de `validation.ts`. Le formulaire et les filtres du

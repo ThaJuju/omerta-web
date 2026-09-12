@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "./Icon";
 import { EditeurArticle } from "./EditeurArticle";
-import { categories, categorieLabel, dateLisible } from "@/lib/blog";
+import { dateLisible } from "@/lib/blog";
 
 export type ArticleRow = {
   id: string;
@@ -13,7 +13,6 @@ export type ArticleRow = {
   titre: string;
   extrait: string;
   contenu: string;
-  categorie: string;
   couverture: string | null;
   epingle: boolean;
   statut: string;
@@ -30,7 +29,6 @@ const STATUTS = {
 export function GestionArticles({ initiaux }: { initiaux: ArticleRow[] }) {
   const router = useRouter();
   const [filtre, setFiltre] = useState<string>("TOUS");
-  const [filtreCategorie, setFiltreCategorie] = useState<string>("TOUTES");
   const [editeur, setEditeur] = useState<{ ouvert: boolean; article: ArticleRow | null }>(
     { ouvert: false, article: null },
   );
@@ -38,14 +36,8 @@ export function GestionArticles({ initiaux }: { initiaux: ArticleRow[] }) {
   const [aSupprimer, setASupprimer] = useState<string | null>(null);
 
   const visibles = useMemo(
-    () =>
-      initiaux
-        .filter((article) => filtre === "TOUS" || article.statut === filtre)
-        .filter(
-          (article) =>
-            filtreCategorie === "TOUTES" || article.categorie === filtreCategorie,
-        ),
-    [initiaux, filtre, filtreCategorie],
+    () => initiaux.filter((article) => filtre === "TOUS" || article.statut === filtre),
+    [initiaux, filtre],
   );
 
   const compte = (statut: string) =>
@@ -98,7 +90,7 @@ export function GestionArticles({ initiaux }: { initiaux: ArticleRow[] }) {
         </button>
       )}
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2">
         {(["TOUS", "PUBLIE", "BROUILLON"] as const).map((statut) => (
           <button
             key={statut}
@@ -116,29 +108,9 @@ export function GestionArticles({ initiaux }: { initiaux: ArticleRow[] }) {
         ))}
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-2">
-        <span className="mr-1 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-ink-faint">
-          Categorie
-        </span>
-        {["TOUTES", ...categories.map((categorie) => categorie.valeur)].map((valeur) => (
-          <button
-            key={valeur}
-            type="button"
-            onClick={() => setFiltreCategorie(valeur)}
-            className={`border px-3.5 py-2 text-sm font-semibold transition-colors ${
-              filtreCategorie === valeur
-                ? "border-accent bg-accent/15 text-accent"
-                : "border-line text-ink-soft hover:text-ink"
-            }`}
-          >
-            {valeur === "TOUTES" ? "Toutes" : categorieLabel(valeur)}
-          </button>
-        ))}
-      </div>
-
       {visibles.length === 0 ? (
         <p className="panel p-10 text-center text-ink-soft">
-          Aucun article dans cette categorie.
+          Aucun article pour ce statut.
         </p>
       ) : (
         <ul className="space-y-3">
@@ -159,9 +131,6 @@ export function GestionArticles({ initiaux }: { initiaux: ArticleRow[] }) {
                         />
                       )}
                       {article.titre}
-                      <span className="ml-2 border border-line-strong px-2 py-0.5 align-middle font-mono text-[0.62rem] uppercase tracking-[0.1em] text-ink-soft">
-                        {categorieLabel(article.categorie)}
-                      </span>
                     </p>
                     <p className="mt-0.5 text-xs text-ink-soft">
                       {article.publieLe

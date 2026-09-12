@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { Icon } from "./Icon";
-import { categorieLabel, dateLisible, tempsLecture } from "@/lib/blog";
+import { dateLisible, tempsLecture } from "@/lib/blog";
 
 export type ArticleResume = {
   slug: string;
   titre: string;
   extrait: string;
-  categorie: string;
   couverture: string | null;
   epingle: boolean;
   contenu: string;
@@ -35,10 +34,6 @@ export function CarteArticle({ article }: { article: ArticleResume }) {
               <Icon name="news" className="h-10 w-10 text-ink-faint" />
             </div>
           )}
-
-          <span className="absolute left-0 top-0 bg-void/90 px-2.5 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-accent">
-            {categorieLabel(article.categorie)}
-          </span>
 
           {article.epingle && (
             <span className="absolute right-0 top-0 flex items-center gap-1.5 bg-accent px-2.5 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-void">

@@ -129,13 +129,6 @@ export const articleSchema = z.object({
   slug,
   extrait: texte(20, 320, "Extrait"),
   contenu: texte(50, 40000, "Contenu"),
-  categorie: z.enum([
-    "ACTUALITE",
-    "MISE_A_JOUR",
-    "EVENEMENT",
-    "REGLEMENT",
-    "COMMUNAUTE",
-  ]),
   /// Champ facultatif : la chaine vide de l'editeur vaut « pas de couverture ».
   couverture: z.union([urlImage, z.literal("")]).optional(),
   epingle: z.boolean().optional(),

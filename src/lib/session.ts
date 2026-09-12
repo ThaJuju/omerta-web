@@ -20,6 +20,18 @@ function secret() {
   return new TextEncoder().encode(value);
 }
 
+/// Le cookie de session est marque `Secure` des que le site tourne en
+/// production — un navigateur refuse alors de le conserver sur une origine en
+/// clair, et la connexion staff boucle sur elle-meme.
+///
+/// `COOKIE_NON_SECURISE=1` leve ce drapeau, uniquement pour une instance de
+/// developpement servie en http sur une IP de LAN. **A ne jamais poser sur la
+/// VM de production** : le jeton de session circulerait alors en clair.
+function cookieSecurise(): boolean {
+  if (process.env.COOKIE_NON_SECURISE === "1") return false;
+  return process.env.NODE_ENV === "production";
+}
+
 export async function createSession(payload: SessionPayload) {
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
@@ -29,7 +41,7 @@ export async function createSession(payload: SessionPayload) {
 
   (await cookies()).set(COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: cookieSecurise(),
     sameSite: "lax",
     path: "/",
     maxAge: MAX_AGE,

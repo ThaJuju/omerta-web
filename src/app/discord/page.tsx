@@ -4,7 +4,10 @@ import { PageShell } from "@/components/PageShell";
 import { Icon, type IconName } from "@/components/Icon";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Discord" };
+export const metadata: Metadata = {
+  title: "Discord",
+  alternates: { canonical: "/discord" },
+};
 
 const atouts: { icon: IconName; label: string }[] = [
   { icon: "users", label: "Communaute active" },

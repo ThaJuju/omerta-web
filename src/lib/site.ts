@@ -1,6 +1,10 @@
 /// Toutes les valeurs editoriales du site, en un seul endroit.
 export const site = {
   name: "Omerta FA",
+  /// Origine publique du site. Sert aux URL canoniques, au sitemap et aux
+  /// metadonnees sociales, qui exigent toutes des adresses absolues.
+  /// Figee au build : la changer impose un `npm run build`.
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://omerta-rp.fr",
   tagline: "OMERTA FA ROLEPLAY",
   title: "Serveur Ouvert",
   description:

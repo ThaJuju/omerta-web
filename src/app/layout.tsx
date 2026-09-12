@@ -34,6 +34,7 @@ export const metadata: Metadata = {
     description: site.description,
     images: ["/assets/logo.png"],
     type: "website",
+    siteName: site.name,
     locale: "fr_FR",
   },
 };

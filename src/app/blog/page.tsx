@@ -7,16 +7,38 @@ import { prisma } from "@/lib/prisma";
 import { PAR_PAGE } from "@/lib/blog";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: `Actualites, mises a jour et evenements du serveur ${site.name}.`,
-};
+type Recherche = Promise<{ page?: string }>;
+
+/// Chaque page de pagination se declare canonique d'elle-meme : sans cela,
+/// `/blog?page=2` et `/blog` passent pour deux versions du meme contenu.
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Recherche;
+}): Promise<Metadata> {
+  const { page } = await searchParams;
+  const numero = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
+  const url = numero > 1 ? `${site.url}/blog?page=${numero}` : `${site.url}/blog`;
+
+  return {
+    title: numero > 1 ? `Blog — page ${numero}` : "Blog",
+    description: `Actualites, mises a jour et evenements du serveur ${site.name}.`,
+    alternates: { canonical: url },
+    openGraph: {
+      title: "Blog",
+      description: `Actualites, mises a jour et evenements du serveur ${site.name}.`,
+      type: "website",
+      url,
+      siteName: site.name,
+      locale: "fr_FR",
+      images: [`${site.url}/assets/logo.png`],
+    },
+  };
+}
 
 /// Les articles changent depuis le dashboard sans redeploiement : la page est
 /// rendue a la demande plutot que figee au build.
 export const dynamic = "force-dynamic";
-
-type Recherche = Promise<{ page?: string }>;
 
 export default async function PageBlog({
   searchParams,

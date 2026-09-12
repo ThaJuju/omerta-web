@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { CarteArticle } from "@/components/CarteArticle";
@@ -58,6 +59,12 @@ const etapes = [
     texte: "Acces libre, serveur ouvert en permanence. Un clic sur le lien et FiveM vous emmene en ville.",
   },
 ];
+
+/// Chaque page porte sa propre canonique : placee dans le layout racine, elle
+/// serait heritee par toutes et les ferait toutes pointer vers l'accueil.
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 /// L'accueil affiche les derniers articles : elle depend donc de la base et ne
 /// peut pas etre figee au build.

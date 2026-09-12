@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import { prisma } from "@/lib/prisma";
 import { dateLisible, tempsLecture } from "@/lib/blog";
 import { rendreMarkdown } from "@/lib/markdown";
+import { site } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -27,15 +28,25 @@ export async function generateMetadata({
   const article = await publie(slug);
   if (!article) return { title: "Article introuvable" };
 
+  const url = `${site.url}/blog/${article.slug}`;
+
   return {
     title: article.titre,
     description: article.extrait,
+    // Sans canonique, une meme page atteinte par plusieurs chemins compte
+    // comme autant de doublons pour un moteur de recherche.
+    alternates: { canonical: url },
     openGraph: {
       title: article.titre,
       description: article.extrait,
       type: "article",
+      url,
+      siteName: site.name,
+      locale: "fr_FR",
       publishedTime: (article.publieLe ?? article.createdAt).toISOString(),
-      ...(article.couverture ? { images: [article.couverture] } : {}),
+      modifiedTime: article.updatedAt.toISOString(),
+      // Repli sur le logo : une carte sociale sans image passe inapercue.
+      images: [article.couverture ?? `${site.url}/assets/logo.png`],
     },
   };
 }
@@ -54,8 +65,29 @@ export default async function PageArticle({ params }: { params: Params }) {
     take: 3,
   });
 
+  const donneesStructurees = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: article.titre,
+    description: article.extrait,
+    datePublished: date.toISOString(),
+    dateModified: article.updatedAt.toISOString(),
+    inLanguage: "fr-FR",
+    mainEntityOfPage: `${site.url}/blog/${article.slug}`,
+    image: article.couverture ?? `${site.url}/assets/logo.png`,
+    publisher: {
+      "@type": "Organization",
+      name: site.name,
+      logo: { "@type": "ImageObject", url: `${site.url}/assets/logo.png` },
+    },
+  };
+
   return (
     <PageShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(donneesStructurees) }}
+      />
       <article className="py-4">
         <Link
           href="/blog"
@@ -82,7 +114,7 @@ export default async function PageArticle({ params }: { params: Params }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={article.couverture}
-            alt=""
+            alt={article.titre}
             className="mt-10 max-h-[520px] w-full border border-line object-cover"
           />
         )}

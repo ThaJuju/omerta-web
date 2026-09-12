@@ -5,6 +5,7 @@ import { FormulaireCandidature } from "@/components/FormulaireCandidature";
 export const metadata: Metadata = {
   title: "Recrutement",
   description: "Postulez pour rejoindre l'equipe staff ou l'equipe animation d'Omerta FA.",
+  alternates: { canonical: "/candidature" },
 };
 
 export default function PageCandidature() {

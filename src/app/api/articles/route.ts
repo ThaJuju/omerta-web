@@ -16,7 +16,6 @@ export async function GET() {
   const articles = await prisma.article.findMany({
     orderBy: [{ epingle: "desc" }, { publieLe: "desc" }, { createdAt: "desc" }],
     take: 200,
-    include: { auteur: { select: { username: true } } },
   });
 
   return NextResponse.json({ articles });

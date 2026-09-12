@@ -32,7 +32,6 @@ export default async function PageStaff() {
     prisma.article.findMany({
       orderBy: [{ epingle: "desc" }, { publieLe: "desc" }, { createdAt: "desc" }],
       take: 200,
-      include: { auteur: { select: { username: true } } },
     }),
     // La liste des comptes ne quitte le serveur que pour un administrateur.
     admin
@@ -49,11 +48,10 @@ export default async function PageStaff() {
     reviewedAt: candidature.reviewedAt?.toISOString() ?? null,
   }));
 
-  const lignesArticles: ArticleRow[] = articles.map(({ auteur, ...reste }) => ({
-    ...reste,
-    publieLe: reste.publieLe?.toISOString() ?? null,
-    createdAt: reste.createdAt.toISOString(),
-    auteurNom: auteur?.username ?? null,
+  const lignesArticles: ArticleRow[] = articles.map((article) => ({
+    ...article,
+    publieLe: article.publieLe?.toISOString() ?? null,
+    createdAt: article.createdAt.toISOString(),
   }));
 
   const lignesEquipe: StaffRow[] = equipe.map((utilisateur) => ({

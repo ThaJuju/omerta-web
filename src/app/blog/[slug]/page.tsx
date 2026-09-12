@@ -16,7 +16,6 @@ type Params = Promise<{ slug: string }>;
 const publie = (slug: string) =>
   prisma.article.findFirst({
     where: { slug, statut: "PUBLIE" },
-    include: { auteur: { select: { username: true } } },
   });
 
 export async function generateMetadata({
@@ -53,7 +52,6 @@ export default async function PageArticle({ params }: { params: Params }) {
     where: { statut: "PUBLIE", NOT: { id: article.id } },
     orderBy: { publieLe: "desc" },
     take: 3,
-    include: { auteur: { select: { username: true } } },
   });
 
   return (
@@ -74,7 +72,6 @@ export default async function PageArticle({ params }: { params: Params }) {
           <div className="rule-accent mt-7 max-w-md" />
           <p className="mt-6 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-ink-faint">
             {dateLisible(date)} · {tempsLecture(article.contenu)} min de lecture
-            {article.auteur && ` · par ${article.auteur.username}`}
           </p>
           <p className="mt-6 text-xl leading-relaxed text-ink-soft">
             {article.extrait}
@@ -114,7 +111,6 @@ export default async function PageArticle({ params }: { params: Params }) {
                   epingle: autre.epingle,
                   contenu: autre.contenu,
                   publieLe: (autre.publieLe ?? autre.createdAt).toISOString(),
-                  auteur: autre.auteur?.username ?? null,
                 }}
               />
             ))}

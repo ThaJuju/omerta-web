@@ -18,7 +18,6 @@ export type ArticleRow = {
   statut: string;
   publieLe: string | null;
   createdAt: string;
-  auteurNom: string | null;
 };
 
 const STATUTS = {
@@ -136,7 +135,6 @@ export function GestionArticles({ initiaux }: { initiaux: ArticleRow[] }) {
                       {article.publieLe
                         ? `publie le ${dateLisible(article.publieLe)}`
                         : `cree le ${dateLisible(article.createdAt)}`}
-                      {article.auteurNom && ` · par ${article.auteurNom}`}
                       {" · "}
                       <span className="font-mono text-ink-faint">/blog/{article.slug}</span>
                     </p>

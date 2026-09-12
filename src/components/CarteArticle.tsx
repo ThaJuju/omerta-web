@@ -10,7 +10,6 @@ export type ArticleResume = {
   epingle: boolean;
   contenu: string;
   publieLe: string;
-  auteur: string | null;
 };
 
 /// Carte d'article en liste. L'image de couverture passe par une balise <img>

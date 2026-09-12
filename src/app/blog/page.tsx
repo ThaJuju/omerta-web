@@ -35,7 +35,6 @@ export default async function PageBlog({
       orderBy: [{ epingle: "desc" }, { publieLe: "desc" }],
       skip: (numero - 1) * PAR_PAGE,
       take: PAR_PAGE,
-      include: { auteur: { select: { username: true } } },
     }),
     prisma.article.count({ where }),
   ]);
@@ -75,7 +74,6 @@ export default async function PageBlog({
                   epingle: article.epingle,
                   contenu: article.contenu,
                   publieLe: (article.publieLe ?? article.createdAt).toISOString(),
-                  auteur: article.auteur?.username ?? null,
                 }}
               />
             ))}

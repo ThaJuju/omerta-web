@@ -69,7 +69,6 @@ export default async function Accueil() {
       where: { statut: "PUBLIE" },
       orderBy: [{ epingle: "desc" }, { publieLe: "desc" }],
       take: 3,
-      include: { auteur: { select: { username: true } } },
     })
     .catch(() => []);
 
@@ -174,7 +173,6 @@ export default async function Accueil() {
                     epingle: article.epingle,
                     contenu: article.contenu,
                     publieLe: (article.publieLe ?? article.createdAt).toISOString(),
-                    auteur: article.auteur?.username ?? null,
                   }}
                 />
               ))}

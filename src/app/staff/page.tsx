@@ -22,7 +22,6 @@ export default async function PageStaff() {
     prisma.candidature.findMany({
       orderBy: { createdAt: "desc" },
       take: 200,
-      include: { reviewedBy: { select: { username: true } } },
     }),
     prisma.article.findMany({
       orderBy: [{ epingle: "desc" }, { publieLe: "desc" }, { createdAt: "desc" }],
@@ -31,11 +30,10 @@ export default async function PageStaff() {
     }),
   ]);
 
-  const lignes: CandidatureRow[] = candidatures.map(({ reviewedBy, ...reste }) => ({
-    ...reste,
-    createdAt: reste.createdAt.toISOString(),
-    reviewedAt: reste.reviewedAt?.toISOString() ?? null,
-    reviewerNom: reviewedBy?.username ?? null,
+  const lignes: CandidatureRow[] = candidatures.map((candidature) => ({
+    ...candidature,
+    createdAt: candidature.createdAt.toISOString(),
+    reviewedAt: candidature.reviewedAt?.toISOString() ?? null,
   }));
 
   const lignesArticles: ArticleRow[] = articles.map(({ auteur, ...reste }) => ({
@@ -45,7 +43,6 @@ export default async function PageStaff() {
     auteurNom: auteur?.username ?? null,
   }));
 
-  const enAttente = lignes.filter((ligne) => ligne.status === "EN_ATTENTE").length;
   const brouillons = lignesArticles.filter(
     (article) => article.statut === "BROUILLON",
   ).length;
@@ -62,7 +59,8 @@ export default async function PageStaff() {
             <p className="mt-3 text-sm text-ink-soft">
               Connecte en tant que <strong className="text-ink">{session.username}</strong>
               {" · "}
-              {enAttente} candidature{enAttente > 1 ? "s" : ""} en attente
+              {lignes.length} candidature{lignes.length > 1 ? "s" : ""} recue
+              {lignes.length > 1 ? "s" : ""}
               {" · "}
               {brouillons} brouillon{brouillons > 1 ? "s" : ""}
             </p>

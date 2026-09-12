@@ -5,6 +5,9 @@ import { notifierCandidature } from "@/lib/discord";
 import { ipDepuis, limiter } from "@/lib/rateLimit";
 import { getSession } from "@/lib/session";
 
+/// Delai avant de pouvoir repostuler avec le meme compte Discord.
+const CARENCE_JOURS = 30;
+
 /// Soumission d'une candidature. Toute la validation est ici : contrairement a
 /// l'ancien site, le client ne peut rien contourner en editant le localStorage.
 export async function POST(request: Request) {
@@ -38,15 +41,22 @@ export async function POST(request: Request) {
 
   const donnees = resultat.data;
 
-  // Une seule candidature en attente par identifiant Discord.
-  const enCours = await prisma.candidature.findFirst({
-    where: { discordTag: donnees.discordTag, status: "EN_ATTENTE" },
+  // Anti-doublon. Il reposait sur le statut « en attente », mais le site ne
+  // traite plus les candidatures — la decision se prend en reagissant au
+  // message Discord, et le statut ne bouge donc jamais. Tel quel, le garde
+  // aurait interdit a vie toute nouvelle candidature. Il devient une periode
+  // de carence : un refuse peut repostuler passe ce delai.
+  const depuis = new Date(Date.now() - CARENCE_JOURS * 24 * 60 * 60 * 1000);
+  const recente = await prisma.candidature.findFirst({
+    where: { discordTag: donnees.discordTag, createdAt: { gte: depuis } },
     select: { id: true },
   });
 
-  if (enCours) {
+  if (recente) {
     return NextResponse.json(
-      { message: "Une candidature est deja en cours d'examen pour ce compte Discord." },
+      {
+        message: `Une candidature a deja ete envoyee pour ce compte Discord. Vous pourrez repostuler ${CARENCE_JOURS} jours apres votre derniere demande.`,
+      },
       { status: 409 },
     );
   }
@@ -68,7 +78,6 @@ export async function GET() {
   const candidatures = await prisma.candidature.findMany({
     orderBy: { createdAt: "desc" },
     take: 200,
-    include: { reviewedBy: { select: { username: true } } },
   });
 
   return NextResponse.json({ candidatures });

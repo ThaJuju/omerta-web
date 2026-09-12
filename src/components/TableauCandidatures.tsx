@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Icon } from "./Icon";
 import { questionsPour } from "@/lib/questions";
 import { postes, posteLabel } from "@/lib/postes";
@@ -10,39 +9,27 @@ import { ageDepuis } from "@/lib/age";
 
 export type CandidatureRow = Record<string, string | number | null> & {
   id: string;
-  status: string;
   poste: string;
   discordTag: string;
   prenom: string;
   dateNaissance: string;
   createdAt: string;
-  noteStaff: string | null;
-  reviewerNom: string | null;
 };
 
 /// Un identifiant Discord numerique : il ouvre alors le profil du candidat.
 const ID_DISCORD = /^\d{17,20}$/;
 
-const STATUTS = {
-  EN_ATTENTE: { label: "En attente", classe: "border-warn/40 bg-warn/10 text-warn" },
-  ACCEPTEE: { label: "Acceptee", classe: "border-ok/40 bg-ok/10 text-ok" },
-  REFUSEE: { label: "Refusee", classe: "border-danger/40 bg-danger/10 text-danger" },
-} as const;
-
-
+/// Liste des candidatures recues, en lecture seule. Accepter ou refuser se
+/// fait en reagissant au message du webhook dans Discord, pas ici : le site
+/// ne porte aucun statut, il n'y en aurait qu'un second a tenir a jour.
 export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[] }) {
-  const router = useRouter();
-  const [filtre, setFiltre] = useState<string>("EN_ATTENTE");
   const [filtrePoste, setFiltrePoste] = useState<string>("TOUS");
   const [ouverte, setOuverte] = useState<string | null>(null);
-  const [enCours, setEnCours] = useState<string | null>(null);
 
   const visibles = useMemo(
     () =>
-      initiales
-        .filter((c) => filtre === "TOUTES" || c.status === filtre)
-        .filter((c) => filtrePoste === "TOUS" || c.poste === filtrePoste),
-    [initiales, filtre, filtrePoste],
+      initiales.filter((c) => filtrePoste === "TOUS" || c.poste === filtrePoste),
+    [initiales, filtrePoste],
   );
 
   const comptePoste = (poste: string) =>
@@ -50,47 +37,8 @@ export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[]
       ? initiales.length
       : initiales.filter((c) => c.poste === poste).length;
 
-  const compte = (statut: string) =>
-    statut === "TOUTES"
-      ? initiales.length
-      : initiales.filter((c) => c.status === statut).length;
-
-  const changerStatut = async (id: string, status: string) => {
-    setEnCours(id);
-    try {
-      await fetch(`/api/candidatures/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      router.refresh();
-    } finally {
-      setEnCours(null);
-    }
-  };
-
   return (
     <div>
-      <div className="mb-5 flex flex-wrap gap-2">
-        {(["EN_ATTENTE", "ACCEPTEE", "REFUSEE", "TOUTES"] as const).map((statut) => (
-          <button
-            key={statut}
-            type="button"
-            onClick={() => setFiltre(statut)}
-            className={` border px-3.5 py-2 text-sm font-semibold transition-colors ${
-              filtre === statut
-                ? "border-accent bg-accent/15 text-accent"
-                : "border-line text-ink-soft hover:text-ink"
-            }`}
-          >
-            {statut === "TOUTES"
-              ? "Toutes"
-              : STATUTS[statut as keyof typeof STATUTS].label}
-            <span className="ml-1.5 opacity-60">{compte(statut)}</span>
-          </button>
-        ))}
-      </div>
-
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <span className="mr-1 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-ink-faint">
           Poste
@@ -114,13 +62,11 @@ export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[]
 
       {visibles.length === 0 ? (
         <p className="panel p-10 text-center text-ink-soft">
-          Aucune candidature dans cette categorie.
+          Aucune candidature pour ce poste.
         </p>
       ) : (
         <ul className="space-y-3">
           {visibles.map((candidature) => {
-            const statut =
-              STATUTS[candidature.status as keyof typeof STATUTS] ?? STATUTS.EN_ATTENTE;
             const deployee = ouverte === candidature.id;
 
             return (
@@ -162,7 +108,6 @@ export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[]
                         month: "long",
                         year: "numeric",
                       })}
-                      {candidature.reviewerNom && ` · traitee par ${candidature.reviewerNom}`}
                     </p>
                   </button>
 
@@ -179,32 +124,21 @@ export function TableauCandidatures({ initiales }: { initiales: CandidatureRow[]
                     </a>
                   )}
 
-                  <span
-                    className={` border px-2.5 py-1 text-xs font-bold ${statut.classe}`}
+                  <button
+                    type="button"
+                    onClick={() => setOuverte(deployee ? null : candidature.id)}
+                    aria-expanded={deployee}
+                    title={deployee ? "Replier le dossier" : "Deplier le dossier"}
+                    className="flex h-11 w-11 items-center justify-center border border-line-strong text-ink-soft transition-colors hover:border-accent hover:text-accent"
                   >
-                    {statut.label}
-                  </span>
-
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      disabled={enCours === candidature.id}
-                      onClick={() => changerStatut(candidature.id, "ACCEPTEE")}
-                      title="Accepter"
-                      className="flex h-11 w-11 items-center justify-center border border-line-strong text-ok transition-colors hover:border-ok hover:bg-ok/10 disabled:opacity-40"
-                    >
-                      <Icon name="check" />
-                    </button>
-                    <button
-                      type="button"
-                      disabled={enCours === candidature.id}
-                      onClick={() => changerStatut(candidature.id, "REFUSEE")}
-                      title="Refuser"
-                      className="flex h-11 w-11 items-center justify-center border border-line-strong text-danger transition-colors hover:border-danger hover:bg-danger/10 disabled:opacity-40"
-                    >
-                      <Icon name="cross" />
-                    </button>
-                  </div>
+                    <Icon
+                      name="chevronDown"
+                      className={`h-4 w-4 transition-transform ${deployee ? "rotate-180" : ""}`}
+                    />
+                    <span className="sr-only">
+                      {deployee ? "Replier le dossier" : "Deplier le dossier"}
+                    </span>
+                  </button>
                 </div>
 
                 {deployee && (

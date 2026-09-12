@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getStaffCourant } from "@/lib/session";
 import { articleMajSchema } from "@/lib/validation";
 
 /// Modification d'un article. Le dashboard envoie soit le formulaire complet,
@@ -9,8 +9,8 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession();
-  if (!session) {
+  const moi = await getStaffCourant();
+  if (!moi) {
     return NextResponse.json({ message: "Non autorise." }, { status: 401 });
   }
 
@@ -64,8 +64,8 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession();
-  if (!session) {
+  const moi = await getStaffCourant();
+  if (!moi) {
     return NextResponse.json({ message: "Non autorise." }, { status: 401 });
   }
 

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { candidatureSchema } from "@/lib/validation";
 import { notifierCandidature } from "@/lib/discord";
 import { ipDepuis, limiter } from "@/lib/rateLimit";
-import { getSession } from "@/lib/session";
+import { getStaffCourant } from "@/lib/session";
 
 /// Delai avant de pouvoir repostuler avec le meme compte Discord.
 const CARENCE_JOURS = 30;
@@ -70,8 +70,8 @@ export async function POST(request: Request) {
 
 /// Liste des candidatures, reservee au staff approuve.
 export async function GET() {
-  const session = await getSession();
-  if (!session) {
+  const moi = await getStaffCourant();
+  if (!moi) {
     return NextResponse.json({ message: "Non autorise." }, { status: 401 });
   }
 

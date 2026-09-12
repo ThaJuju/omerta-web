@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getStaffCourant } from "@/lib/session";
 import { articleSchema } from "@/lib/validation";
 
 /// Liste complete des articles, brouillons compris : reservee au staff.
 /// Le public passe par les pages /blog, qui ne lisent que les articles publies.
 export async function GET() {
-  const session = await getSession();
-  if (!session) {
+  // Relu en base : un compte suspendu garde un jeton valide jusqu'a huit
+  // heures, il ne doit pas pouvoir continuer a ecrire pour autant.
+  const moi = await getStaffCourant();
+  if (!moi) {
     return NextResponse.json({ message: "Non autorise." }, { status: 401 });
   }
 
@@ -22,8 +24,10 @@ export async function GET() {
 
 /// Creation d'un article depuis le dashboard.
 export async function POST(request: Request) {
-  const session = await getSession();
-  if (!session) {
+  // Relu en base : un compte suspendu garde un jeton valide jusqu'a huit
+  // heures, il ne doit pas pouvoir continuer a ecrire pour autant.
+  const moi = await getStaffCourant();
+  if (!moi) {
     return NextResponse.json({ message: "Non autorise." }, { status: 401 });
   }
 
@@ -50,7 +54,7 @@ export async function POST(request: Request) {
         epingle: epingle ?? false,
         // La date de publication n'existe qu'a partir de la mise en ligne.
         publieLe: reste.statut === "PUBLIE" ? new Date() : null,
-        auteurId: session.userId,
+        auteurId: moi.id,
       },
     });
     return NextResponse.json({ article }, { status: 201 });

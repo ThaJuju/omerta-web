@@ -2,24 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Icon } from "./Icon";
 
-type Onglet = "connexion" | "inscription";
-
+/// Connexion uniquement : il n'y a pas d'inscription libre. Les comptes sont
+/// crees par un administrateur depuis l'onglet Equipe du dashboard.
 export function FormulaireStaff() {
   const router = useRouter();
-  const [onglet, setOnglet] = useState<Onglet>("connexion");
-  const [message, setMessage] = useState<{ texte: string; type: "erreur" | "ok" } | null>(
-    null,
-  );
+  const [message, setMessage] = useState<string | null>(null);
   const [envoi, setEnvoi] = useState(false);
 
-  const changerOnglet = (suivant: Onglet) => {
-    setOnglet(suivant);
-    setMessage(null);
-  };
-
-  const soumettre = async (event: React.FormEvent<HTMLFormElement>, chemin: string) => {
+  const soumettre = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setEnvoi(true);
     setMessage(null);
@@ -27,7 +18,7 @@ export function FormulaireStaff() {
     const donnees = Object.fromEntries(new FormData(event.currentTarget));
 
     try {
-      const reponse = await fetch(`/api/auth/${chemin}`, {
+      const reponse = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(donnees),
@@ -35,20 +26,14 @@ export function FormulaireStaff() {
       const data = await reponse.json();
 
       if (!reponse.ok) {
-        setMessage({ texte: data.message || "Une erreur est survenue.", type: "erreur" });
+        setMessage(data.message || "Une erreur est survenue.");
         return;
       }
 
-      if (chemin === "login") {
-        router.push("/staff");
-        router.refresh();
-        return;
-      }
-
-      setMessage({ texte: data.message, type: "ok" });
-      event.currentTarget.reset();
+      router.push("/staff");
+      router.refresh();
     } catch {
-      setMessage({ texte: "Connexion au serveur impossible.", type: "erreur" });
+      setMessage("Connexion au serveur impossible.");
     } finally {
       setEnvoi(false);
     }
@@ -86,64 +71,31 @@ export function FormulaireStaff() {
         <div className="rule-accent mt-5" />
       </div>
 
-      <div className="mt-8 flex border border-line">
-        {(["connexion", "inscription"] as const).map((valeur) => (
-          <button
-            key={valeur}
-            type="button"
-            onClick={() => changerOnglet(valeur)}
-            className={`min-h-11 flex-1 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
-              onglet === valeur ? "bg-accent text-void" : "text-ink-soft hover:text-ink"
-            }`}
-          >
-            {valeur}
-          </button>
-        ))}
-      </div>
-
       {message && (
         <p
           role="alert"
-          className={`mt-5  border px-4 py-3 text-sm ${
-            message.type === "erreur"
-              ? "border-danger/40 bg-danger/10 text-danger"
-              : "border-ok/40 bg-ok/10 text-ok"
-          }`}
+          className="mt-6 border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"
         >
-          {message.texte}
+          {message}
         </p>
       )}
 
-      {onglet === "connexion" ? (
-        <form onSubmit={(event) => soumettre(event, "login")} className="mt-6 space-y-4">
-          {champ("login-username", "Nom d'utilisateur", "text", "Votre identifiant", "username")}
-          {champ("login-password", "Mot de passe", "password", "Votre mot de passe", "current-password")}
-          <button
-            type="submit"
-            disabled={envoi}
-            className="button-primary w-full disabled:opacity-50"
-          >
-            {envoi ? "Connexion..." : "Se connecter"}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={(event) => soumettre(event, "register")} className="mt-6 space-y-4">
-          {champ("register-username", "Nom d'utilisateur", "text", "Choisissez un identifiant", "username")}
-          {champ("register-password", "Mot de passe", "password", "8 caracteres minimum", "new-password")}
-          {champ("register-confirm", "Confirmer le mot de passe", "password", "Retapez le mot de passe", "new-password")}
-          <p className="text-xs text-ink-soft">
-            Le compte devra etre approuve par un administrateur avant la premiere
-            connexion.
-          </p>
-          <button
-            type="submit"
-            disabled={envoi}
-            className="button-primary w-full disabled:opacity-50"
-          >
-            {envoi ? "Creation..." : "Creer le compte"}
-          </button>
-        </form>
-      )}
+      <form onSubmit={soumettre} className="mt-7 space-y-4">
+        {champ("login-username", "Nom d'utilisateur", "text", "Votre identifiant", "username")}
+        {champ("login-password", "Mot de passe", "password", "Votre mot de passe", "current-password")}
+        <button
+          type="submit"
+          disabled={envoi}
+          className="button-primary w-full disabled:opacity-50"
+        >
+          {envoi ? "Connexion..." : "Se connecter"}
+        </button>
+      </form>
+
+      <p className="mt-6 border-t border-line pt-5 text-xs leading-relaxed text-ink-faint">
+        Les comptes staff sont crees par un administrateur. Contactez l&apos;equipe
+        sur Discord pour obtenir un acces.
+      </p>
     </div>
   );
 }

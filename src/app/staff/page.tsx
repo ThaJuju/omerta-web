@@ -8,17 +8,23 @@ import {
   type CandidatureRow,
 } from "@/components/TableauCandidatures";
 import { GestionArticles, type ArticleRow } from "@/components/GestionArticles";
-import { getSession } from "@/lib/session";
+import { GestionStaff, type StaffRow } from "@/components/GestionStaff";
+import { getStaffCourant } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { CHAMPS_STAFF } from "@/lib/staff";
 
 export const metadata: Metadata = { title: "Dashboard Staff", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
 export default async function PageStaff() {
-  const session = await getSession();
-  if (!session) redirect("/staff/login");
+  // Relu en base : un compte suspendu depuis l'emission du jeton doit perdre
+  // l'acces immediatement, sans attendre l'expiration de sa session.
+  const moi = await getStaffCourant();
+  if (!moi) redirect("/staff/login");
 
-  const [candidatures, articles] = await Promise.all([
+  const admin = moi.role === "ADMIN";
+
+  const [candidatures, articles, equipe] = await Promise.all([
     prisma.candidature.findMany({
       orderBy: { createdAt: "desc" },
       take: 200,
@@ -28,6 +34,13 @@ export default async function PageStaff() {
       take: 200,
       include: { auteur: { select: { username: true } } },
     }),
+    // La liste des comptes ne quitte le serveur que pour un administrateur.
+    admin
+      ? prisma.staffUser.findMany({
+          orderBy: [{ approved: "desc" }, { createdAt: "asc" }],
+          select: CHAMPS_STAFF,
+        })
+      : Promise.resolve([]),
   ]);
 
   const lignes: CandidatureRow[] = candidatures.map((candidature) => ({
@@ -41,6 +54,12 @@ export default async function PageStaff() {
     publieLe: reste.publieLe?.toISOString() ?? null,
     createdAt: reste.createdAt.toISOString(),
     auteurNom: auteur?.username ?? null,
+  }));
+
+  const lignesEquipe: StaffRow[] = equipe.map((utilisateur) => ({
+    ...utilisateur,
+    createdAt: utilisateur.createdAt.toISOString(),
+    lastLoginAt: utilisateur.lastLoginAt?.toISOString() ?? null,
   }));
 
   const brouillons = lignesArticles.filter(
@@ -57,7 +76,8 @@ export default async function PageStaff() {
               Dashboard
             </h1>
             <p className="mt-3 text-sm text-ink-soft">
-              Connecte en tant que <strong className="text-ink">{session.username}</strong>
+              Connecte en tant que <strong className="text-ink">{moi.username}</strong>
+              {admin && " (administrateur)"}
               {" · "}
               {lignes.length} candidature{lignes.length > 1 ? "s" : ""} recue
               {lignes.length > 1 ? "s" : ""}
@@ -84,6 +104,19 @@ export default async function PageStaff() {
               compte: lignesArticles.length,
               contenu: <GestionArticles initiaux={lignesArticles} />,
             },
+            // L'onglet n'apparait que pour un administrateur — et les routes
+            // qu'il appelle verifient le role de leur cote.
+            ...(admin
+              ? [
+                  {
+                    cle: "equipe",
+                    label: "Equipe",
+                    icon: "lock" as const,
+                    compte: lignesEquipe.length,
+                    contenu: <GestionStaff initiaux={lignesEquipe} moiId={moi.id} />,
+                  },
+                ]
+              : []),
           ]}
         />
       </div>

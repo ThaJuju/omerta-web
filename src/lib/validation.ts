@@ -82,21 +82,42 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Mot de passe requis."),
 });
 
-export const registerSchema = z
+/// ── Comptes staff ─────────────────────────────────────────────────────────
+///
+/// Il n'y a pas d'inscription libre : les comptes sont crees par un
+/// administrateur depuis le dashboard.
+
+const nomUtilisateur = z
+  .string()
+  .trim()
+  .min(3, "3 caracteres minimum.")
+  .max(32, "32 caracteres maximum.")
+  .regex(/^[a-zA-Z0-9_.-]+$/, "Lettres, chiffres, point, tiret et underscore uniquement.");
+
+const motDePasse = z.string().min(8, "8 caracteres minimum.").max(200);
+
+export const ROLES = ["MODERATEUR", "ADMIN"] as const;
+export type Role = (typeof ROLES)[number];
+
+export const nouveauStaffSchema = z.object({
+  username: nomUtilisateur,
+  password: motDePasse,
+  role: z.enum(ROLES),
+});
+
+/// Modification d'un compte existant. Tout est optionnel : le dashboard
+/// n'envoie que le champ touche (activer, changer de role, reinitialiser).
+export const majStaffSchema = z
   .object({
-    username: z
-      .string()
-      .trim()
-      .min(3, "3 caracteres minimum.")
-      .max(32)
-      .regex(/^[a-zA-Z0-9_.-]+$/, "Lettres, chiffres, point, tiret et underscore uniquement."),
-    password: z.string().min(8, "8 caracteres minimum."),
-    confirm: z.string(),
+    approved: z.boolean(),
+    role: z.enum(ROLES),
+    password: motDePasse,
   })
-  .refine((data) => data.password === data.confirm, {
-    message: "Les mots de passe ne correspondent pas.",
-    path: ["confirm"],
-  });
+  .partial()
+  .refine(
+    (donnees) => Object.keys(donnees).length > 0,
+    "Aucune modification fournie.",
+  );
 
 /// ── Blog ──────────────────────────────────────────────────────────────────
 

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 400" width="780" height="400" role="img" aria-label="Contenu du dossier data : supprimer cache, nui-storage, server-cache et server-cache-priv, conserver game-storage">
+  <rect width="780" height="400" fill="#0d0d0e"/>
+  <rect x="0" y="0" width="4" height="400" fill="#ff641e"/>
+
+  <text x="32" y="44" font-family="ui-monospace,Consolas,monospace" font-size="14" letter-spacing="2" fill="#ff641e">FiveM Application Data\data</text>
+
+  <g font-family="ui-monospace,Consolas,monospace" font-size="17">
+    <rect x="32" y="70" width="600" height="40" fill="#141416" stroke="#f87171" stroke-width="1.5"/>
+    <text x="52" y="96" fill="#f7f3ed">cache</text>
+    <text x="612" y="96" text-anchor="end" fill="#f87171" font-size="15">a supprimer</text>
+
+    <rect x="32" y="118" width="600" height="40" fill="#141416" stroke="#f87171" stroke-width="1.5"/>
+    <text x="52" y="144" fill="#f7f3ed">nui-storage</text>
+    <text x="612" y="144" text-anchor="end" fill="#f87171" font-size="15">a supprimer</text>
+
+    <rect x="32" y="166" width="600" height="40" fill="#141416" stroke="#f87171" stroke-width="1.5"/>
+    <text x="52" y="192" fill="#f7f3ed">server-cache</text>
+    <text x="612" y="192" text-anchor="end" fill="#f87171" font-size="15">a supprimer</text>
+
+    <rect x="32" y="214" width="600" height="40" fill="#141416" stroke="#f87171" stroke-width="1.5"/>
+    <text x="52" y="240" fill="#f7f3ed">server-cache-priv</text>
+    <text x="612" y="240" text-anchor="end" fill="#f87171" font-size="15">a supprimer</text>
+
+    <rect x="32" y="268" width="600" height="48" fill="#12200f" stroke="#4ade80" stroke-width="2"/>
+    <text x="52" y="298" fill="#f7f3ed">game-storage</text>
+    <text x="612" y="298" text-anchor="end" fill="#4ade80" font-size="15">NE PAS TOUCHER</text>
+  </g>
+
+  <text x="32" y="356" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="15" fill="#aaa6a0">Les quatre premiers se recreent au prochain lancement. Le dernier contient vos donnees locales.</text>
+</svg>

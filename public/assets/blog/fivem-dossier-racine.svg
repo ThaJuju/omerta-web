@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 300" width="780" height="300" role="img" aria-label="Arborescence du dossier FiveM : supprimer crashes et logs, entrer dans FiveM Application Data">
+  <rect width="780" height="300" fill="#0d0d0e"/>
+  <rect x="0" y="0" width="4" height="300" fill="#ff641e"/>
+
+  <text x="32" y="44" font-family="ui-monospace,Consolas,monospace" font-size="14" letter-spacing="2" fill="#ff641e">%LOCALAPPDATA%\FiveM</text>
+
+  <g font-family="ui-monospace,Consolas,monospace" font-size="17">
+    <rect x="32" y="70" width="470" height="42" fill="#141416" stroke="#f87171" stroke-width="1.5"/>
+    <text x="52" y="97" fill="#f7f3ed">crashes</text>
+    <text x="482" y="97" text-anchor="end" fill="#f87171" font-size="15">a supprimer</text>
+
+    <rect x="32" y="120" width="470" height="42" fill="#141416" stroke="#f87171" stroke-width="1.5"/>
+    <text x="52" y="147" fill="#f7f3ed">logs</text>
+    <text x="482" y="147" text-anchor="end" fill="#f87171" font-size="15">a supprimer</text>
+
+    <rect x="32" y="170" width="470" height="42" fill="#141416" stroke="#ff641e" stroke-width="1.5"/>
+    <text x="52" y="197" fill="#f7f3ed">FiveM Application Data</text>
+    <text x="482" y="197" text-anchor="end" fill="#ff641e" font-size="15">entrer ici</text>
+  </g>
+
+  <g font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="15">
+    <text x="32" y="252" fill="#aaa6a0">Le dossier a l'icone de l'escargot vert et orange.</text>
+    <text x="32" y="276" fill="#77736f">Clic droit sur le raccourci FiveM &#8594; Ouvrir l'emplacement du fichier.</text>
+  </g>
+</svg>
